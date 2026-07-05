@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import StudentLogin from './pages/StudentLogin'
 import StaffLogin from './pages/StaffLogin'
 import AdminLogin from './pages/AdminLogin'
+import StudentDashboard from './pages/StudentDashboard'
 
 function App() {
   return (
@@ -15,6 +16,9 @@ function App() {
 
         {/* Admin Login - Private */}
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Student Dashboard */}
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
       </Routes>
     </BrowserRouter>
   )
