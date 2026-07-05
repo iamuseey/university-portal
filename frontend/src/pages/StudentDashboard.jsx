@@ -1,4 +1,12 @@
+import { useNavigate } from 'react-router-dom'
 function StudentDashboard() {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    // Clear any stored user data (if applicable)
+    // For now, just navigate back to the login page
+    navigate('/login')
+  }
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -7,7 +15,9 @@ function StudentDashboard() {
         <h1 className="text-lg font-bold">🎓 University Portal</h1>
         <div className="flex items-center gap-4">
           <span className="text-sm">Welcome, Usman Ibrahim</span>
-          <button className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100">
+          <button 
+          onClick={handleLogout}
+          className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100" onClick={handleLogout}>
             Logout
           </button>
         </div>
