@@ -1,4 +1,28 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 function StudentLogin() {
+  const [matricNo, setMatricNo] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  const navigate = useNavigate()
+
+  const handleLogin = () => {
+    // Basic validation
+    if (matricNo === '' || password === '') {
+      setError('Please fill in all fields')
+      return
+    }
+
+    // Fake login check for now (we'll connect real backend later)
+    if (matricNo === 'CSC/2022/001' && password === 'password123') {
+      navigate('/student/dashboard')
+    } else {
+      setError('Invalid matric number or password')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
@@ -14,6 +38,13 @@ function StudentLogin() {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
+            {error}
+          </div>
+        )}
+
         {/* Matric Number */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -22,6 +53,8 @@ function StudentLogin() {
           <input
             type="text"
             placeholder="e.g. CSC/2022/001"
+            value={matricNo}
+            onChange={(e) => setMatricNo(e.target.value)}
             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -34,12 +67,17 @@ function StudentLogin() {
           <input
             type="password"
             placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Button */}
-        <button className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
+        <button
+          onClick={handleLogin}
+          className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition"
+        >
           Login to Portal
         </button>
 
