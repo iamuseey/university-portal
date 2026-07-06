@@ -8,20 +8,32 @@ function StudentLogin() {
 
   const navigate = useNavigate()
 
-  const handleLogin = () => {
-    // Basic validation
-    if (matricNo === '' || password === '') {
-      setError('Please fill in all fields')
-      return
-    }
+  const handleLogin = async () => {
+  if (matricNo === '' || password === '') {
+    setError('Please fill in all fields')
+    return
+  }
 
-    // Fake login check for now (we'll connect real backend later)
-    if (matricNo === 'CSC/2022/001' && password === 'password123') {
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/student/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ matric_no: matricNo, password })
+    })
+
+    const data = await response.json()
+
+    if (response.ok) {
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('student', JSON.stringify(data.student))
       navigate('/student/dashboard')
     } else {
-      setError('Invalid matric number or password')
+      setError(data.message)
     }
+  } catch (err) {
+    setError('Cannot connect to server. Try again.')
   }
+}
 
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center">
