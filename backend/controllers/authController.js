@@ -126,4 +126,59 @@ const staffLogin = async (req, res) => {
   }
 }
 
-module.exports = { studentLogin, staffLogin }
+const adminLogin = async (req, res) => {
+  try {
+    const { admin_id, password } = req.body
+
+    const adminResult = await pool.query(
+      `SELECT a.*, u.full_name, u.password_hash, u.role, u.is_active 
+       FROM admins a 
+       JOIN users u ON a.user_id = u.id 
+       WHERE a.admin_id = $1`,
+      [admin_id]
+    )
+
+    if (adminResult.rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid admin ID or password' })
+    }
+
+    const admin = adminResult.rows[0]
+
+    if (!admin.is_active) {
+      return res.status(401).json({ message: 'Account disabled. Contact IT.' })
+    }
+
+    const validPassword = await bcrypt.compare(password, admin.password_hash)
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Invalid admin ID or password' })
+    }
+
+    const token = jwt.sign(
+      {
+        id: admin.user_id,
+        role: admin.role,
+        admin_id: admin.admin_id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    res.json({
+      message: 'Login successful',
+      token,
+      admin: {
+        full_name: admin.full_name,
+        admin_id: admin.admin_id,
+        office: admin.office,
+        access_level: admin.access_level,
+        role: admin.role,
+      }
+    })
+
+  } catch (error) {
+    console.error('Admin login error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+module.exports = { studentLogin, staffLogin, adminLogin }
