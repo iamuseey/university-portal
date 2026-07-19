@@ -136,6 +136,7 @@ function StudentDashboard() {
                   { label: "Library", icon: "📚", path: "/student/library" },
                   { label: "Hostel", icon: "🏠", path: "/student/hostel" },
                   { label: "Documents", icon: "📄", path: "/student/documents" },
+                  { label: "Exam Card", icon: "🪪", path: "/student/examcard" },
                   { label: "My Profile", icon: "👤", path: "/student/profile" },
                 ].map((link, i) => (
                   <button 
