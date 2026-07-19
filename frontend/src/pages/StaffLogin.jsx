@@ -26,8 +26,14 @@ function StaffLogin() {
       if (response.ok) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('staff', JSON.stringify(data.staff))
-        navigate('/staff/dashboard')
-      } else {
+
+        // Redirect based on role
+        if (data.staff.role === 'hod') {
+          navigate('/hod/dashboard')
+        } else {
+          navigate('/staff/dashboard')
+        }
+      } else {  // <-- ADDED } ABOVE THIS LINE
         setError(data.message)
       }
     } catch (err) {
@@ -52,7 +58,7 @@ function StaffLogin() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
+          <div className="bg-red-50 border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
             {error}
           </div>
         )}
@@ -81,7 +87,7 @@ function StaffLogin() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
