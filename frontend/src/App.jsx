@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import HODDashboard from './pages/HODDashboard'
 import CourseRegistration from './pages/CourseRegistration'
 import FeePayment from './pages/FeePayment'
+import ResultsPage from './pages/ResultsPage' // <-- ADDED
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -58,6 +59,13 @@ function App() {
         <Route path="/student/fees" element={
           <ProtectedRoute>
             <FeePayment />
+          </ProtectedRoute>
+        } />
+
+        {/* RESULTS ROUTE */} 
+        <Route path="/student/results" element={
+          <ProtectedRoute>
+            <ResultsPage />
           </ProtectedRoute>
         } />
 
