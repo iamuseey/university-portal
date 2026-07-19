@@ -112,7 +112,7 @@ function StaffDashboard() {
               <h3 className="font-bold text-gray-800 mb-4">⚡ Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Enter Scores", icon: "✏️" },
+                  { label: "Enter Scores", icon: "✏️", path: "/staff/scores" },
                   { label: "Class List", icon: "👥" },
                   { label: "Submit Results", icon: "📤" },
                   { label: "My Timetable", icon: "📅" },
@@ -121,7 +121,10 @@ function StaffDashboard() {
                   { label: "Attendance", icon: "☑️" },
                   { label: "My Profile", icon: "👤" },
                 ].map((link, i) => (
-                  <button key={i} className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                  <button 
+                    key={i} 
+                    onClick={() => link.path && navigate(link.path)} // <-- ADDED
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>

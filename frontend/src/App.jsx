@@ -9,7 +9,8 @@ import HODDashboard from './pages/HODDashboard'
 import CourseRegistration from './pages/CourseRegistration'
 import FeePayment from './pages/FeePayment'
 import ResultsPage from './pages/ResultsPage'
-import ExamCard from './pages/ExamCard' // <-- ADDED
+import ExamCard from './pages/ExamCard'
+import ScoreEntry from './pages/ScoreEntry' // <-- ADDED
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -29,6 +30,13 @@ function App() {
         <Route path="/staff/dashboard" element={
           <ProtectedRoute>
             <StaffDashboard />
+          </ProtectedRoute>
+        } />
+
+        {/* STAFF ROUTE */}
+        <Route path="/staff/scores" element={
+          <ProtectedRoute>
+            <ScoreEntry />
           </ProtectedRoute>
         } />
 
