@@ -129,16 +129,19 @@ function StudentDashboard() {
               <h3 className="font-bold text-gray-800 mb-4">⚡ Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "My Results", icon: "📊" },
-                  { label: "Pay Fees", icon: "💳" },
-                  { label: "Timetable", icon: "📅" },
-                  { label: "Course Reg", icon: "📝" },
-                  { label: "Library", icon: "📚" },
-                  { label: "Hostel", icon: "🏠" },
-                  { label: "Documents", icon: "📄" },
-                  { label: "My Profile", icon: "👤" },
+                  { label: "My Results", icon: "📊", path: "/student/results" },
+                  { label: "Pay Fees", icon: "💳", path: "/student/fees" },
+                  { label: "Timetable", icon: "📅", path: "/student/timetable" },
+                  { label: "Course Reg", icon: "📝", path: "/student/courses" },
+                  { label: "Library", icon: "📚", path: "/student/library" },
+                  { label: "Hostel", icon: "🏠", path: "/student/hostel" },
+                  { label: "Documents", icon: "📄", path: "/student/documents" },
+                  { label: "My Profile", icon: "👤", path: "/student/profile" },
                 ].map((link, i) => (
-                  <button key={i} className="flex items-center gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                  <button 
+                    key={i} 
+                    onClick={() => navigate(link.path)} 
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>
@@ -149,7 +152,7 @@ function StudentDashboard() {
             {/* Notifications */}
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">🔔 Notifications</h3>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="bg-yellow-50 border-yellow-200 rounded-lg p-3">
                 <p className="text-sm font-semibold text-yellow-800">Exam Timetable Released</p>
                 <p className="text-xs text-yellow-600 mt-1">
                   Second semester exams begin July 20th. Check your timetable.

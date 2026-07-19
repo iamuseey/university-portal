@@ -5,7 +5,8 @@ import AdminLogin from './pages/AdminLogin'
 import StudentDashboard from './pages/StudentDashboard'
 import StaffDashboard from './pages/StaffDashboard'
 import AdminDashboard from './pages/AdminDashboard'
-import HODDashboard from './pages/HODDashboard' // <-- ADDED THIS
+import HODDashboard from './pages/HODDashboard'
+import CourseRegistration from './pages/CourseRegistration'
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -32,6 +33,23 @@ function App() {
         <Route path="/hod/dashboard" element={
           <ProtectedRoute>
             <HODDashboard />
+          </ProtectedRoute>
+        } />
+
+        {/* COURSE ROUTES */}
+        <Route path="/student/courses" element={
+          <ProtectedRoute>
+            <CourseRegistration />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/courses/add" element={
+          <ProtectedRoute>
+            <CourseRegistration />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/courses/drop" element={
+          <ProtectedRoute>
+            <CourseRegistration />
           </ProtectedRoute>
         } />
 

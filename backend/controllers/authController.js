@@ -48,6 +48,8 @@ const studentLogin = async (req, res) => {
       message: 'Login successful',
       token,
       student: {
+        id: student.id,
+        user_id: student.user_id,
         full_name: student.full_name,
         matric_no: student.matric_no,
         department: student.department,
