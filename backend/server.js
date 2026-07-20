@@ -7,12 +7,16 @@ const authRoutes = require('./routes/authRoutes')
 const courseRoutes = require('./routes/courseRoutes')
 const paymentRoutes = require('./routes/paymentRoutes')
 const resultsRoutes = require('./routes/resultsRoutes')
-const scoresRoutes = require('./routes/scoresRoutes') // <-- ADDED
+const scoresRoutes = require('./routes/scoresRoutes')
 
 const app = express()
 
 // Middleware
-app.use(cors())
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 app.use(express.json())
 
 // Routes
@@ -20,11 +24,15 @@ app.use('/api/auth', authRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/results', resultsRoutes)
-app.use('/api/scores', scoresRoutes) // <-- ADDED
+app.use('/api/scores', scoresRoutes)
 
-// Test route
+// Health check
 app.get('/', (req, res) => {
-  res.json({ message: 'University Portal API is running!' })
+  res.json({
+    message: 'University Portal API is running!',
+    version: '1.0.0',
+    status: 'healthy'
+  })
 })
 
 // Start server
