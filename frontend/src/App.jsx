@@ -10,7 +10,8 @@ import CourseRegistration from './pages/CourseRegistration'
 import FeePayment from './pages/FeePayment'
 import ResultsPage from './pages/ResultsPage'
 import ExamCard from './pages/ExamCard'
-import ScoreEntry from './pages/ScoreEntry' // <-- ADDED
+import ScoreEntry from './pages/ScoreEntry'
+import StudentManagement from './pages/StudentManagement'
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -85,11 +86,19 @@ function App() {
           </ProtectedRoute>
         } />
 
+        {/* ADMIN ROUTES */}
         <Route path="/admin/dashboard" element={
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
         } />
+
+        <Route path="/admin/students" element={ // <-- ADDED
+          <ProtectedRoute>
+            <StudentManagement />
+          </ProtectedRoute>
+        } />
+
       </Routes>
     </BrowserRouter>
   )

@@ -183,4 +183,84 @@ const adminLogin = async (req, res) => {
   }
 }
 
-module.exports = { studentLogin, staffLogin, adminLogin }
+const getAllStudents = async (req, res) => {
+  try {
+    const { search, department, level } = req.query
+
+    let query = `
+      SELECT 
+        s.id,
+        s.matric_no,
+        s.department,
+        s.faculty,
+        s.level,
+        s.cgpa,
+        s.academic_status,
+        u.full_name,
+        u.email,
+        u.phone,
+        u.is_active,
+        u.created_at
+      FROM students s
+      JOIN users u ON s.user_id = u.id
+      WHERE 1=1
+    `
+    const params = []
+
+    if (search) {
+      params.push(`%${search}%`)
+      query += ` AND (u.full_name ILIKE $${params.length} OR s.matric_no ILIKE $${params.length})`
+    }
+
+    if (department) {
+      params.push(department)
+      query += ` AND s.department = $${params.length}`
+    }
+
+    if (level) {
+      params.push(level)
+      query += ` AND s.level = $${params.length}`
+    }
+
+    query += ` ORDER BY s.matric_no ASC`
+
+    const students = await pool.query(query, params)
+
+    res.json({
+      students: students.rows,
+      total: students.rows.length
+    })
+
+  } catch (error) {
+    console.error('Get all students error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// Toggle student active status
+const toggleStudentStatus = async (req, res) => {
+  try {
+    const { user_id, is_active } = req.body
+
+    await pool.query(
+      `UPDATE users SET is_active = $1 WHERE id = $2`,
+      [is_active, user_id]
+    )
+
+    res.json({
+      message: `Student account ${is_active ? 'activated' : 'deactivated'} successfully`
+    })
+
+  } catch (error) {
+    console.error('Toggle status error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+module.exports = {
+  studentLogin,
+  staffLogin,
+  adminLogin,
+  getAllStudents,
+  toggleStudentStatus
+}

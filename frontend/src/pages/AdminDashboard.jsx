@@ -111,16 +111,19 @@ function AdminDashboard() {
               <h3 className="font-bold text-gray-800 mb-4">⚡ Admin Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Manage Students", icon: "🎓" },
-                  { label: "Manage Staff", icon: "👨‍🏫" },
-                  { label: "Course Reg Control", icon: "📝" },
-                  { label: "Results Control", icon: "📊" },
-                  { label: "Fee Management", icon: "💰" },
-                  { label: "Transcripts", icon: "📄" },
-                  { label: "Admissions", icon: "📥" },
-                  { label: "System Settings", icon: "⚙️" },
+                  { label: "Manage Students", icon: "🎓", path: "/admin/students" },
+                  { label: "Manage Staff", icon: "👨‍🏫", path: "/admin/staff" },
+                  { label: "Course Reg Control", icon: "📝", path: "/admin/courses" },
+                  { label: "Results Control", icon: "📊", path: "/admin/results" },
+                  { label: "Fee Management", icon: "💰", path: "/admin/fees" },
+                  { label: "Transcripts", icon: "📄", path: "/admin/transcripts" },
+                  { label: "Admissions", icon: "📥", path: "/admin/admissions" },
+                  { label: "System Settings", icon: "⚙️", path: "/admin/settings" },
                 ].map((link, i) => (
-                  <button key={i} className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                  <button
+                    key={i}
+                    onClick={() => navigate(link.path)}
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>
@@ -135,7 +138,7 @@ function AdminDashboard() {
                 { action: "3 transcript requests pending", urgent: true },
                 { action: "2 deferral applications to review", urgent: false },
               ].map((item, i) => (
-                <div key={i} className={`rounded-lg p-3 mb-2 ${item.urgent ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+                <div key={i} className={`rounded-lg p-3 mb-2 ${item.urgent ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
                   <p className={`text-sm font-semibold ${item.urgent ? 'text-red-700' : 'text-yellow-700'}`}>
                     {item.action}
                   </p>
