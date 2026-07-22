@@ -1,3 +1,4 @@
+import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -29,7 +30,7 @@ function ScoreEntry() {
   const fetchCourses = async (staffData) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/courses/available?level=300&department=${staffData.department}`
+        `${API_URL/api/courses/available?level=300&department=${staffData.department}`
       )
       const data = await response.json()
       setCourses(data.courses)
@@ -44,7 +45,7 @@ function ScoreEntry() {
     setError('')
     try {
       const response = await fetch(
-        `http://localhost:5000/api/scores/students?course_id=${course.id}&session=${SESSION}&semester=${SEMESTER}`
+        `${API_URL/api/scores/students?course_id=${course.id}&session=${SESSION}&semester=${SEMESTER}`
       )
       const data = await response.json()
       setStudents(data.students)
@@ -112,7 +113,7 @@ function ScoreEntry() {
         }
       })
 
-      const response = await fetch('http://localhost:5000/api/scores/save', {
+      const response = await fetch('${API_URL/api/scores/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ function ScoreEntry() {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:5000/api/scores/submit', {
+      const response = await fetch('${API_URL/api/scores/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

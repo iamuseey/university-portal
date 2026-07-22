@@ -1,3 +1,4 @@
+import API_URL from '../api'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,7 +16,7 @@ function StudentLogin() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/auth/student/login', {
+    const response = await fetch('${API_URL/api/auth/student/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ matric_no: matricNo, password })

@@ -1,3 +1,4 @@
+import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -27,7 +28,7 @@ function StudentManagement() {
   const fetchStudents = async (searchTerm = '', level = '', dept = '') => {
     setLoading(true)
     try {
-      let url = 'http://localhost:5000/api/auth/students?'
+      let url = '${API_URL/api/auth/students?'
       if (searchTerm) url += `search=${searchTerm}&`
       if (level) url += `level=${level}&`
       if (dept) url += `department=${dept}&`
@@ -60,7 +61,7 @@ function StudentManagement() {
     setMessage('')
     setError('')
     try {
-      const response = await fetch('http://localhost:5000/api/auth/students/toggle', {
+      const response = await fetch('${API_URL/api/auth/students/toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

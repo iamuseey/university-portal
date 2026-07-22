@@ -1,3 +1,4 @@
+import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -29,7 +30,7 @@ function CourseRegistration() {
   const fetchCourses = async (studentData) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/courses/available?level=${studentData.level}&department=${studentData.department}`
+        `${API_URL/api/courses/available?level=${studentData.level}&department=${studentData.department}`
       )
       const data = await response.json()
       setAvailableCourses(data.courses)
@@ -41,7 +42,7 @@ function CourseRegistration() {
   const fetchRegistered = async (studentData) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/courses/registered?student_id=${studentData.id}&session=${SESSION}&semester=${SEMESTER}`
+        `${API_URL/api/courses/registered?student_id=${studentData.id}&session=${SESSION}&semester=${SEMESTER}`
       )
       const data = await response.json()
       setRegisteredCourses(data.registered)
@@ -61,7 +62,7 @@ function CourseRegistration() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/courses/add', {
+      const response = await fetch('${API_URL/api/courses/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,7 +94,7 @@ function CourseRegistration() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/courses/remove', {
+      const response = await fetch('${API_URL/api/courses/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,7 +123,7 @@ function CourseRegistration() {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:5000/api/courses/submit', {
+      const response = await fetch('${API_URL/api/courses/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
