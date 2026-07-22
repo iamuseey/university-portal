@@ -28,7 +28,7 @@ function ResultsPage() {
   const fetchSessions = async (studentData) => {
     try {
       const response = await fetch(
-        `${API_URL/api/results/sessions?student_id=${studentData.id}`
+        `${API_URL}/api/results/sessions?student_id=${studentData.id}`
       )
       const data = await response.json()
       setSessions(data.sessions)
@@ -48,7 +48,7 @@ function ResultsPage() {
   const fetchResults = async (studentData, session, semester) => {
     try {
       const response = await fetch(
-        `${API_URL/api/results/student?student_id=${studentData.id}&session=${session}&semester=${semester}`
+        `${API_URL}/api/results/student?student_id=${studentData.id}&session=${session}&semester=${semester}`
       )
       const data = await response.json()
       setResults(data.results)
@@ -62,7 +62,7 @@ function ResultsPage() {
   const fetchCGPA = async (studentData) => {
     try {
       const response = await fetch(
-        `${API_URL/api/results/cgpa?student_id=${studentData.id}`
+        `${API_URL}/api/results/cgpa?student_id=${studentData.id}`
       )
       const data = await response.json()
       setCgpaData(data)

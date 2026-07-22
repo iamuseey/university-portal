@@ -28,14 +28,14 @@ function ExamCard() {
     try {
       // Fetch registered courses
       const coursesRes = await fetch(
-        `${API_URL/api/courses/registered?student_id=${studentData.id}&session=${SESSION}&semester=${SEMESTER}`
+        `${API_URL}/api/courses/registered?student_id=${studentData.id}&session=${SESSION}&semester=${SEMESTER}`
       )
       const coursesData = await coursesRes.json()
       setRegisteredCourses(coursesData.registered)
 
       // Fetch payment status
       const paymentRes = await fetch(
-        `${API_URL/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
+        `${API_URL}/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
       )
       const paymentData = await paymentRes.json()
       const paid = paymentData.payments.find(p => p.status === 'paid')

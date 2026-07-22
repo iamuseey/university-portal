@@ -29,7 +29,7 @@ function FeePayment() {
   const fetchFees = async (studentData) => {
     try {
       const response = await fetch(
-        `${API_URL/api/payments/fees?level=${studentData.level}&department=${studentData.department}&session=${SESSION}`
+        `${API_URL}/api/payments/fees?level=${studentData.level}&department=${studentData.department}&session=${SESSION}`
       )
       const data = await response.json()
       setFees(data.fees)
@@ -42,7 +42,7 @@ function FeePayment() {
   const fetchPaymentStatus = async (studentData) => {
     try {
       const response = await fetch(
-        `${API_URL/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
+        `${API_URL}/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
       )
       const data = await response.json()
       // Get the combined payment if exists
@@ -59,7 +59,7 @@ function FeePayment() {
     setLoading(true)
 
     try {
-      const response = await fetch('${API_URL/api/payments/generate', {
+      const response = await fetch('${API_URL}/api/payments/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -90,7 +90,7 @@ function FeePayment() {
     setLoading(true)
 
     try {
-      const response = await fetch('${API_URL/api/payments/confirm', {
+      const response = await fetch('${API_URL}/api/payments/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
