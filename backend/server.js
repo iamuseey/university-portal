@@ -14,7 +14,7 @@ const app = express()
 // Middleware
 app.use(cors({
   origin: [
-    'https://university-portal-cp5p-rho.vercel.app',
+    'https://university-portal-cp5p-828tfcjt-ussey353gmailcoms-project.vercel.app',
     'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
