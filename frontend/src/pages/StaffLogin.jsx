@@ -16,7 +16,7 @@ function StaffLogin() {
     }
 
     try {
-      const response = await fetch('${API_URL}/api/auth/staff/login', {
+      const response = await fetch(`${API_URL}/api/auth/staff/login`, { // FIXED: backticks `
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staff_id: staffId, password })
@@ -34,7 +34,7 @@ function StaffLogin() {
         } else {
           navigate('/staff/dashboard')
         }
-      } else {  // <-- ADDED } ABOVE THIS LINE
+      } else {
         setError(data.message)
       }
     } catch (err) {

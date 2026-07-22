@@ -16,7 +16,7 @@ return
 }
 
 try {
-const response = await fetch('${API_URL}/api/auth/admin/login', {
+const response = await fetch(`${API_URL}/api/auth/admin/login`, { // FIXED: backticks `
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ admin_id: adminId, password })
