@@ -1,6 +1,7 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar' // ADDED
 
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null)
@@ -15,11 +16,21 @@ function AdminDashboard() {
     setAdmin(JSON.parse(savedAdmin))
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('admin')
-    navigate('/admin/login')
-  }
+  // ADDED: Admin navigation links
+  const adminLinks = [
+    { label: 'Dashboard', icon: '🏠', path: '/admin/dashboard' },
+    { label: 'Manage Students', icon: '🎓', path: '/admin/students' },
+    { label: 'Manage Staff', icon: '👨‍🏫', path: '/admin/staff' },
+    { label: 'Course Reg Control', icon: '📝', path: '/admin/courses' },
+    { label: 'Results Control', icon: '📊', path: '/admin/results' },
+    { label: 'Fee Management', icon: '💰', path: '/admin/fees' },
+    { label: 'Transcripts', icon: '📄', path: '/admin/transcripts' },
+    { label: 'Admissions', icon: '📥', path: '/admin/admissions' },
+    { label: 'System Settings', icon: '⚙️', path: '/admin/settings' },
+    { label: 'My Profile', icon: '👤', path: '/admin/profile' },
+  ]
+
+  // REMOVED: handleLogout - Navbar handles it now
 
   if (!admin) {
     return (
@@ -32,18 +43,8 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">🛡️ University Portal — Admin</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Welcome, {admin.full_name}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 text-white text-sm px-3 py-1 rounded-lg font-semibold hover:bg-red-700">
-            Logout
-          </button>
-        </div>
-      </nav>
+      {/* REPLACED: Navbar */}
+      <Navbar role="admin" user={admin.full_name} links={adminLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
 
@@ -111,20 +112,11 @@ function AdminDashboard() {
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Admin Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Manage Students", icon: "🎓", path: "/admin/students" },
-                  { label: "Manage Staff", icon: "👨‍🏫", path: "/admin/staff" },
-                  { label: "Course Reg Control", icon: "📝", path: "/admin/courses" },
-                  { label: "Results Control", icon: "📊", path: "/admin/results" },
-                  { label: "Fee Management", icon: "💰", path: "/admin/fees" },
-                  { label: "Transcripts", icon: "📄", path: "/admin/transcripts" },
-                  { label: "Admissions", icon: "📥", path: "/admin/admissions" },
-                  { label: "System Settings", icon: "⚙️", path: "/admin/settings" },
-                ].map((link, i) => (
+                {adminLinks.slice(1, 9).map((link, i) => ( // USING adminLinks NOW
                   <button
                     key={i}
                     onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>
@@ -139,7 +131,7 @@ function AdminDashboard() {
                 { action: "3 transcript requests pending", urgent: true },
                 { action: "2 deferral applications to review", urgent: false },
               ].map((item, i) => (
-                <div key={i} className={`rounded-lg p-3 mb-2 ${item.urgent ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                <div key={i} className={`rounded-lg p-3 mb-2 border ${item.urgent ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
                   <p className={`text-sm font-semibold ${item.urgent ? 'text-red-700' : 'text-yellow-700'}`}>
                     {item.action}
                   </p>

@@ -1,6 +1,7 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar' // ADDED
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null)
@@ -18,6 +19,21 @@ function StudentDashboard() {
 
     setStudent(JSON.parse(savedStudent))
   }, [])
+
+  // ADDED: Student navigation links
+  const studentLinks = [
+    { label: 'Dashboard', icon: '🏠', path: '/student/dashboard' },
+    { label: 'Course Registration', icon: '📝', path: '/student/courses' },
+    { label: 'Fee Payment', icon: '💳', path: '/student/fees' },
+    { label: 'My Results', icon: '📊', path: '/student/results' },
+    { label: 'Exam Card', icon: '🪪', path: '/student/examcard' },
+    { label: 'SIWES/IT', icon: '🏢', path: '/student/siwes' },
+    { label: 'Medical', icon: '🏥', path: '/student/medical' },
+    { label: 'Library', icon: '📚', path: '/student/library' },
+    { label: 'Hostel', icon: '🏠', path: '/student/hostel' },
+    { label: 'Documents', icon: '📄', path: '/student/documents' },
+    { label: 'My Profile', icon: '👤', path: '/student/profile' },
+  ]
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -37,18 +53,13 @@ function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Top Navigation Bar */}
-      <nav className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">🎓 University Portal</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Welcome, {student.full_name}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100">
-            Logout
-          </button>
-        </div>
-      </nav>
+      {/* REPLACED: Top Navigation Bar */}
+      <Navbar 
+        role="student" 
+        user={student.full_name} 
+        links={studentLinks} 
+        onLogout={handleLogout} // pass logout to Navbar
+      />
 
       {/* Main Content */}
       <div className="p-6 max-w-6xl mx-auto">

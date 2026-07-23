@@ -1,6 +1,7 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar' // ADDED
 
 function StaffDashboard() {
   const [staff, setStaff] = useState(null)
@@ -15,11 +16,20 @@ function StaffDashboard() {
     setStaff(JSON.parse(savedStaff))
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('staff')
-    navigate('/staff/login')
-  }
+  // ADDED: Staff navigation links
+  const staffLinks = [
+    { label: 'Dashboard', icon: '🏠', path: '/staff/dashboard' },
+    { label: 'Enter Scores', icon: '✏️', path: '/staff/scores' },
+    { label: 'Class List', icon: '👥', path: '/staff/classlist' },
+    { label: 'Submit Results', icon: '📤', path: '/staff/results' },
+    { label: 'My Timetable', icon: '📅', path: '/staff/timetable' },
+    { label: 'Upload Materials', icon: '📂', path: '/staff/materials' },
+    { label: 'Announcements', icon: '📢', path: '/staff/announcements' },
+    { label: 'Attendance', icon: '☑️', path: '/staff/attendance' },
+    { label: 'My Profile', icon: '👤', path: '/staff/profile' },
+  ]
+
+  // REMOVED: handleLogout function - Navbar handles it now
 
   if (!staff) {
     return (
@@ -32,18 +42,8 @@ function StaffDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">🎓 University Portal — Staff</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Welcome, {staff.full_name}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-white text-green-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100">
-            Logout
-          </button>
-        </div>
-      </nav>
+      {/* REPLACED: Navbar */}
+      <Navbar role="staff" user={staff.full_name} links={staffLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
 
@@ -114,18 +114,18 @@ function StaffDashboard() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { label: "Enter Scores", icon: "✏️", path: "/staff/scores" },
-                  { label: "Class List", icon: "👥" },
-                  { label: "Submit Results", icon: "📤" },
-                  { label: "My Timetable", icon: "📅" },
-                  { label: "Upload Materials", icon: "📂" },
-                  { label: "Announcements", icon: "📢" },
-                  { label: "Attendance", icon: "☑️" },
-                  { label: "My Profile", icon: "👤" },
+                  { label: "Class List", icon: "👥", path: "/staff/classlist" }, // FIXED: added path
+                  { label: "Submit Results", icon: "📤", path: "/staff/results" }, // FIXED: added path
+                  { label: "My Timetable", icon: "📅", path: "/staff/timetable" }, // FIXED: added path
+                  { label: "Upload Materials", icon: "📂", path: "/staff/materials" }, // FIXED: added path
+                  { label: "Announcements", icon: "📢", path: "/staff/announcements" }, // FIXED: added path
+                  { label: "Attendance", icon: "☑️", path: "/staff/attendance" }, // FIXED: added path
+                  { label: "My Profile", icon: "👤", path: "/staff/profile" }, // FIXED: added path
                 ].map((link, i) => (
                   <button 
                     key={i} 
-                    onClick={() => link.path && navigate(link.path)} // <-- ADDED
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                    onClick={() => link.path && navigate(link.path)}
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>

@@ -1,6 +1,7 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar' // ADDED
 
 function HODDashboard() {
   const [staff, setStaff] = useState(null)
@@ -15,11 +16,21 @@ function HODDashboard() {
     setStaff(JSON.parse(savedStaff))
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('staff')
-    navigate('/staff/login')
-  }
+  // ADDED: HOD navigation links
+  const hodLinks = [
+    { label: 'Dashboard', icon: '🏠', path: '/hod/dashboard' },
+    { label: 'Approve Results', icon: '✅', path: '/hod/results' },
+    { label: 'Assign Courses', icon: '📚', path: '/hod/courses' },
+    { label: 'Dept Timetable', icon: '📅', path: '/hod/timetable' },
+    { label: 'Student Records', icon: '🎓', path: '/hod/students' },
+    { label: 'Reg Exceptions', icon: '📝', path: '/hod/exceptions' },
+    { label: 'Dept Reports', icon: '📊', path: '/hod/reports' },
+    { label: 'Lecturers List', icon: '👨‍🏫', path: '/hod/lecturers' },
+    { label: 'Announcements', icon: '📢', path: '/hod/announcements' },
+    { label: 'My Profile', icon: '👤', path: '/hod/profile' },
+  ]
+
+  // REMOVED: handleLogout - Navbar handles it now
 
   if (!staff) {
     return (
@@ -32,18 +43,8 @@ function HODDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-orange-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">📐 University Portal — HOD</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Welcome, {staff.full_name}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-white text-orange-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100">
-            Logout
-          </button>
-        </div>
-      </nav>
+      {/* REPLACED: Navbar */}
+      <Navbar role="hod" user={staff.full_name} links={hodLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
 
@@ -117,17 +118,11 @@ function HODDashboard() {
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ HOD Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Approve Results", icon: "✅" },
-                  { label: "Assign Courses", icon: "📚" },
-                  { label: "Dept Timetable", icon: "📅" },
-                  { label: "Student Records", icon: "🎓" },
-                  { label: "Reg Exceptions", icon: "📝" },
-                  { label: "Dept Reports", icon: "📊" },
-                  { label: "Lecturers List", icon: "👨‍🏫" },
-                  { label: "Announcements", icon: "📢" },
-                ].map((link, i) => (
-                  <button key={i} className="flex items-center gap-2 bg-gray-50 hover:bg-orange-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                {hodLinks.slice(1, 9).map((link, i) => ( // NOW USING hodLinks WITH PATHS
+                  <button 
+                    key={i} 
+                    onClick={() => navigate(link.path)}
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-orange-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>
@@ -142,7 +137,7 @@ function HODDashboard() {
                 <p className="text-sm font-semibold text-yellow-800">Results Due</p>
                 <p className="text-xs text-yellow-600 mt-1">5 course results awaiting your approval before July 25th.</p>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="bg-blue-50 border-blue-200 rounded-lg p-3">
                 <p className="text-sm font-semibold text-blue-800">3 Registration Exceptions</p>
                 <p className="text-xs text-blue-600 mt-1">Students requesting course registration exceptions need review.</p>
               </div>
