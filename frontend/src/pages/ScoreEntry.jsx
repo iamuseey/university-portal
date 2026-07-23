@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom'
 function ScoreEntry() {
   const [staff, setStaff] = useState(null)
   const [courses, setCourses] = useState([])
-  const [selectedCourse, setSelectedCourse] = useState('')
+  const [selectedCourse, setSelectedCourse] = useState(null)
   const [students, setStudents] = useState([])
   const [scores, setScores] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [loadingStudents, setLoadingStudents] = useState(false)
+  const [loading, setLoading] = useState(true) // CHANGED
+  const [loadingStudents, setLoadingStudents] = useState(false) // NEW
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -32,120 +32,151 @@ function ScoreEntry() {
     setLoading(true)
     setError('')
     try {
-      const url = `${API_URL}/api/staff/courses?staff_id=${staffData.id}`
-      console.log("Fetching staff courses:", url)
-
-      const response = await fetch(url)
-      if (!response.ok) throw new Error(`Server error: ${response.status}`)
-
+      const response = await fetch(
+        `${API_URL}/api/courses/available?level=300&department=${staffData.department}`
+      )
+      if (!response.ok) throw new Error('Server error') // ADDED
       const data = await response.json()
-      console.log("Courses API Response:", data) // DEBUG
-
       setCourses(data.courses || []) // GUARD
-      if (!data.courses || data.courses.length === 0) {
-        setError('No courses assigned to you for this session')
-      }
     } catch (err) {
-      console.error("Fetch courses error:", err)
       setError('Failed to load courses')
-      setCourses([])
+      setCourses([]) // GUARD
     }
     setLoading(false)
   }
 
-  const fetchStudentsForCourse = async (courseId) => {
-    if (!courseId) return
+  const fetchStudents = async (course) => {
     setLoadingStudents(true)
+    setMessage('')
     setError('')
-    setStudents([])
-    setScores({})
-
     try {
-      const url = `${API_URL}/api/staff/course-students?course_id=${courseId}&session=${SESSION}`
-      console.log("Fetching students for course:", url)
-
-      const response = await fetch(url)
-      if (!response.ok) throw new Error(`Server error: ${response.status}`)
-
+      const response = await fetch(
+        `${API_URL}/api/scores/students?course_id=${course.id}&session=${SESSION}&semester=${SEMESTER}`
+      )
+      if (!response.ok) throw new Error('Server error') // ADDED
       const data = await response.json()
-      console.log("Students API Response:", data) // DEBUG
+      setStudents(data.students || []) // GUARD
 
-      const studentList = data.students || [] // GUARD
-      setStudents(studentList)
-
-      // Initialize score object
-      const scoreObj = {}
-      studentList.forEach(s => {
-        scoreObj[s.id] = { ca: '', exam: '' }
+      // Initialize scores
+      const initialScores = {}
+      data.students?.forEach(s => { // GUARD
+        initialScores[s.student_id] = {
+          ca_score: s.ca_score || '',
+          exam_score: s.exam_score || ''
+        }
       })
-      setScores(scoreObj)
-
-      if (studentList.length === 0) {
-        setError('No students registered for this course')
-      }
+      setScores(initialScores)
     } catch (err) {
-      console.error("Fetch students error:", err)
-      setError('Failed to load students for this course')
-      setStudents([])
+      setError('Failed to load students')
+      setStudents([]) // GUARD
     }
     setLoadingStudents(false)
   }
 
-  const handleScoreChange = (studentId, type, value) => {
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course)
+    fetchStudents(course)
+  }
+
+  const handleScoreChange = (studentId, field, value) => {
     setScores(prev => ({
      ...prev,
       [studentId]: {
        ...prev[studentId],
-        [type]: value
+        [field]: value
       }
     }))
   }
 
-  const handleSubmitScores = async () => {
+  const calculateGrade = (total) => {
+    if (total >= 70) return { grade: 'A', point: 5.0 }
+    if (total >= 60) return { grade: 'B', point: 4.0 }
+    if (total >= 50) return { grade: 'C', point: 3.0 }
+    if (total >= 45) return { grade: 'D', point: 2.0 }
+    return { grade: 'F', point: 0.0 }
+  }
+
+  const handleSaveScores = async () => {
+    setLoading(true)
     setMessage('')
     setError('')
 
-    const scoreData = Object.keys(scores).map(studentId => ({
-      student_id: studentId,
-      course_id: selectedCourse,
-      session: SESSION,
-      semester: SEMESTER,
-      ca_score: parseFloat(scores[studentId].ca) || 0,
-      exam_score: parseFloat(scores[studentId].exam) || 0
-    }))
-
-    if (scoreData.length === 0) {
-      setError('No scores to submit')
-      return
-    }
-
     try {
-      const response = await fetch(`${API_URL}/api/staff/submit-scores`, {
+      const scoreData = Object.entries(scores).map(([studentId, score]) => {
+        const ca = parseFloat(score.ca_score) || 0
+        const exam = parseFloat(score.exam_score) || 0
+        const total = ca + exam
+        const { grade, point } = calculateGrade(total)
+
+        return {
+          student_id: parseInt(studentId),
+          course_id: selectedCourse.id,
+          session: SESSION,
+          semester: SEMESTER,
+          ca_score: ca,
+          exam_score: exam,
+          total_score: total,
+          grade,
+          grade_point: point
+        }
+      })
+
+      const response = await fetch(`${API_URL}/api/scores/save`, { // FIXED QUOTES
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scores: scoreData })
+        body: JSON.stringify({
+          scores: scoreData,
+          submitted_by: staff.user_id
+        })
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setMessage('✅ Scores submitted successfully!')
+        setMessage('✅ Scores saved successfully!')
+        fetchStudents(selectedCourse)
       } else {
-        setError(data.message || 'Failed to submit scores')
+        setError(data.message)
       }
     } catch (err) {
-      console.error(err)
-      setError('Failed to submit scores. Check connection.')
+      setError('Failed to save scores')
     }
+    setLoading(false)
   }
 
-  if (!staff) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p>Loading...</p>
-    </div>
-  )
+  const handleSubmitToHOD = async () => {
+    setLoading(true)
+    setMessage('')
+    setError('')
 
-  if (loading) return (
+    try {
+      const response = await fetch(`${API_URL}/api/scores/submit`, { // FIXED QUOTES
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          course_id: selectedCourse.id,
+          session: SESSION,
+          semester: SEMESTER,
+          submitted_by: staff.user_id
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage('🎉 Results submitted to HOD for approval!')
+      } else {
+        setError(data.message)
+      }
+    } catch (err) {
+      setError('Failed to submit results')
+    }
+    setLoading(false)
+  }
+
+  if (!staff) return null
+
+  if (loading) return ( // NEW
     <div className="min-h-screen flex items-center justify-center">
       <p>Loading courses...</p>
     </div>
@@ -153,9 +184,10 @@ function ScoreEntry() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+
       {/* Navbar */}
       <nav className="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">📝 Score Entry</h1>
+        <h1 className="text-lg font-bold">✏️ Score Entry</h1>
         <div className="flex items-center gap-4">
           <span className="text-sm">{staff.full_name}</span>
           <button
@@ -167,92 +199,176 @@ function ScoreEntry() {
       </nav>
 
       <div className="p-6 max-w-6xl mx-auto">
-        {message && <div className="bg-green-50 border-green-200 text-green-700 rounded-lg p-3 mb-4 text-sm">{message}</div>}
-        {error && <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">{error}</div>}
 
-        {/* Course Selector */}
-        <div className="bg-white rounded-xl shadow p-5 mb-6">
-          <h3 className="font-bold text-gray-800 mb-3">Select Course</h3>
-          {courses.length === 0? (
-            <p className="text-gray-500">No courses assigned</p>
-          ) : (
-            <select
-              value={selectedCourse}
-              onChange={(e) => {
-                setSelectedCourse(e.target.value)
-                fetchStudentsForCourse(e.target.value)
-              }}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="">-- Select a course --</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.id}>
-                  {course.code} - {course.title}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-
-        {/* Students Score Table */}
-        {loadingStudents? (
-          <div className="bg-white rounded-xl shadow p-10 text-center">
-            <p>Loading students...</p>
-          </div>
-        ) : students.length > 0 && (
-          <div className="bg-white rounded-xl shadow overflow-hidden">
-            <div className="p-5 border-b bg-gray-50">
-              <h3 className="font-bold text-gray-800">Enter Scores - {SESSION} Semester {SEMESTER}</h3>
-            </div>
-
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b">
-                  <th className="text-left p-4 text-sm font-semibold text-gray-600">S/N</th>
-                  <th className="text-left p-4 text-sm font-semibold text-gray-600">Student</th>
-                  <th className="text-left p-4 text-sm font-semibold text-gray-600">Matric No</th>
-                  <th className="text-center p-4 text-sm font-semibold text-gray-600">CA [30]</th>
-                  <th className="text-center p-4 text-sm font-semibold text-gray-600">Exam [70]</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student, i) => (
-                  <tr key={student.id} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="p-4 text-gray-500 text-sm">{i + 1}</td>
-                    <td className="p-4 text-sm font-semibold text-gray-700">{student.full_name}</td>
-                    <td className="p-4 text-sm text-gray-600">{student.matric_no}</td>
-                    <td className="p-4">
-                      <input
-                        type="number"
-                        max="30"
-                        min="0"
-                        value={scores[student.id]?.ca || ''}
-                        onChange={(e) => handleScoreChange(student.id, 'ca', e.target.value)}
-                        className="w-20 border rounded px-2 py-1 text-center"
-                      />
-                    </td>
-                    <td className="p-4">
-                      <input
-                        type="number"
-                        max="70"
-                        min="0"
-                        value={scores[student.id]?.exam || ''}
-                        onChange={(e) => handleScoreChange(student.id, 'exam', e.target.value)}
-                        className="w-20 border rounded px-2 py-1 text-center"
-                      />
-                    </td>
-                  </tr>
+        {/* Course Selection */}
+        {!selectedCourse && (
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="font-bold text-gray-800 mb-4">
+              📚 Select Course to Enter Scores
+            </h3>
+            {courses.length === 0? ( // GUARD
+              <p className="text-center text-gray-500 py-8">No courses assigned to you</p>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {courses.map((course, i) => (
+                  <button
+                    key={course.id || i} // GUARD
+                    onClick={() => handleCourseSelect(course)}
+                    className="flex justify-between items-center p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition text-left">
+                    <div>
+                      <p className="font-bold text-gray-800">{course.code}</p>
+                      <p className="text-sm text-gray-500">{course.title}</p>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      {course.credit_units} units
+                    </span>
+                  </button>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            )}
+          </div>
+        )}
 
-            <div className="p-5 border-t">
+        {/* Score Entry Table */}
+        {selectedCourse && (
+          <div>
+            {/* Course Header */}
+            <div className="bg-white rounded-xl shadow p-5 mb-4 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-gray-800 text-lg">
+                  {selectedCourse.code} — {selectedCourse.title}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {SESSION} | Semester {SEMESTER} | {students.length} students
+                </p>
+              </div>
               <button
-                onClick={handleSubmitScores}
-                className="w-full bg-green-700 text-white py-3 rounded-xl font-bold hover:bg-green-800">
-                Submit Scores
+                onClick={() => {
+                  setSelectedCourse(null)
+                  setStudents([])
+                  setMessage('')
+                  setError('')
+                }}
+                className="text-sm text-gray-500 hover:text-gray-700 underline">
+                ← Change Course
               </button>
             </div>
+
+            {/* Messages */}
+            {message && (
+              <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 mb-4 text-sm">
+                {message}
+              </div>
+            )}
+            {error && (
+              <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Score Table */}
+            <div className="bg-white rounded-xl shadow overflow-hidden">
+              {loadingStudents? ( // NEW
+                <div className="text-center py-12 text-gray-500">Loading students...</div>
+              ) : students.length === 0? (
+                <div className="text-center py-12">
+                  <p className="text-4xl mb-3">👥</p>
+                  <p className="text-gray-500">No students registered for this course</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      <th className="text-left p-4 text-sm font-semibold text-gray-600">S/N</th>
+                      <th className="text-left p-4 text-sm font-semibold text-gray-600">Student</th>
+                      <th className="text-left p-4 text-sm font-semibold text-gray-600">Matric No</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-600">CA (30)</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-600">Exam (70)</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-600">Total</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-600">Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.map((student, i) => {
+                      const ca = parseFloat(scores[student.student_id]?.ca_score) || 0
+                      const exam = parseFloat(scores[student.student_id]?.exam_score) || 0
+                      const total = ca + exam
+                      const { grade } = calculateGrade(total)
+
+                      return (
+                        <tr key={student.student_id || i} className="border-b last:border-0 hover:bg-gray-50"> {/* GUARD */}
+                          <td className="p-4 text-gray-500 text-sm">{i + 1}</td>
+                          <td className="p-4">
+                            <p className="text-sm font-semibold text-gray-700">
+                              {student.full_name}
+                            </p>
+                          </td>
+                          <td className="p-4">
+                            <p className="text-sm text-gray-500">{student.matric_no}</p>
+                          </td>
+                          <td className="p-4 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              max="30"
+                              value={scores[student.student_id]?.ca_score || ''}
+                              onChange={(e) => handleScoreChange(student.student_id, 'ca_score', e.target.value)}
+                              className="w-16 text-center border border-gray-300 rounded-lg p-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                              placeholder="0"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              max="70"
+                              value={scores[student.student_id]?.exam_score || ''}
+                              onChange={(e) => handleScoreChange(student.student_id, 'exam_score', e.target.value)}
+                              className="w-16 text-center border border-gray-300 rounded-lg p-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                              placeholder="0"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className={`text-sm font-bold ${total >= 50? 'text-green-600' : 'text-red-600'}`}>
+                              {total > 0? total : '-'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className={`text-sm font-bold px-2 py-1 rounded-full ${
+                              grade === 'A'? 'bg-green-100 text-green-600' :
+                              grade === 'B'? 'bg-blue-100 text-blue-600' :
+                              grade === 'C'? 'bg-yellow-100 text-yellow-600' :
+                              grade === 'D'? 'bg-orange-100 text-orange-600' :
+                              'bg-red-100 text-red-600'
+                            }`}>
+                              {total > 0? grade : '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            {students.length > 0 && (
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={handleSaveScores}
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+                  {loading? 'Saving...' : '💾 Save Scores'}
+                </button>
+                <button
+                  onClick={handleSubmitToHOD}
+                  disabled={loading}
+                  className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition">
+                  {loading? 'Submitting...' : '📤 Submit to HOD'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
