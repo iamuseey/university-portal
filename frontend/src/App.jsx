@@ -12,6 +12,7 @@ import ResultsPage from './pages/ResultsPage'
 import ExamCard from './pages/ExamCard'
 import ScoreEntry from './pages/ScoreEntry'
 import StudentManagement from './pages/StudentManagement'
+import SIWESPage from './pages/SIWESPage'
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -98,6 +99,12 @@ function App() {
             <StudentManagement />
           </ProtectedRoute>
         } />
+
+        <Route path="/student/siwes" element={
+          <ProtectedRoute>
+            <SIWESPage />
+          </ProtectedRoute>
+        }/>
 
       </Routes>
     </BrowserRouter>

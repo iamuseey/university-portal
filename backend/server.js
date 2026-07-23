@@ -8,6 +8,7 @@ const courseRoutes = require('./routes/courseRoutes')
 const paymentRoutes = require('./routes/paymentRoutes')
 const resultsRoutes = require('./routes/resultsRoutes')
 const scoresRoutes = require('./routes/scoresRoutes')
+const siwesRoutes = require('./routes/siwesRoutes')
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/api/courses', courseRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/results', resultsRoutes)
 app.use('/api/scores', scoresRoutes)
+app.use('/api/siwes', siwesRoutes)
 
 // Health check
 app.get('/', (req, res) => {
