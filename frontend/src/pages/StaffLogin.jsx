@@ -1,6 +1,6 @@
-import API_URL from '../api'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_URL from '../api' // FIXED: Now importing from central api.js
 
 function StaffLogin() {
   const [staffId, setStaffId] = useState('')
@@ -16,7 +16,7 @@ function StaffLogin() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/staff/login`, { // FIXED: backticks `
+      const response = await fetch(`${API_URL}/api/auth/staff/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staff_id: staffId, password })
@@ -38,6 +38,7 @@ function StaffLogin() {
         setError(data.message)
       }
     } catch (err) {
+      console.error(err)
       setError('Cannot connect to server. Try again.')
     }
   }
@@ -88,7 +89,7 @@ function StaffLogin() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 

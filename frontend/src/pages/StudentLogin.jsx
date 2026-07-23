@@ -1,6 +1,6 @@
-import API_URL from '../api'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import API_URL from '../api' // FIXED: Now importing from central api.js
 
 function StudentLogin() {
   const [matricNo, setMatricNo] = useState('')
@@ -10,31 +10,32 @@ function StudentLogin() {
   const navigate = useNavigate()
 
   const handleLogin = async () => {
-  if (matricNo === '' || password === '') {
-    setError('Please fill in all fields')
-    return
-  }
-
-  try {
-    const response = await fetch(`${API_URL}/api/auth/student/login`, { // FIXED: backticks `
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ matric_no: matricNo, password })
-    })
-
-    const data = await response.json()
-
-    if (response.ok) {
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('student', JSON.stringify(data.student))
-      navigate('/student/dashboard')
-    } else {
-      setError(data.message)
+    if (matricNo === '' || password === '') {
+      setError('Please fill in all fields')
+      return
     }
-  } catch (err) {
-    setError('Cannot connect to server. Try again.')
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/student/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matric_no: matricNo, password })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('student', JSON.stringify(data.student))
+        navigate('/student/dashboard')
+      } else {
+        setError(data.message)
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Cannot connect to server. Try again.')
+    }
   }
-}
 
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center">
@@ -53,7 +54,7 @@ function StudentLogin() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
+          <div className="bg-red-50 border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
             {error}
           </div>
         )}
@@ -68,7 +69,7 @@ function StudentLogin() {
             placeholder="e.g. CSC/2022/001"
             value={matricNo}
             onChange={(e) => setMatricNo(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -82,7 +83,7 @@ function StudentLogin() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
