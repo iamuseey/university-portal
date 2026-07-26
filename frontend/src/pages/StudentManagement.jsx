@@ -1,6 +1,8 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { adminLinks } from '../links'
 
 function StudentManagement() {
   const [admin, setAdmin] = useState(null)
@@ -10,7 +12,7 @@ function StudentManagement() {
   const [levelFilter, setLevelFilter] = useState('')
   const [deptFilter, setDeptFilter] = useState('')
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [loading, setLoading] = useState(true) // CHANGED: start true
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -29,20 +31,20 @@ function StudentManagement() {
     setLoading(true)
     setError('')
     try {
-      let url = `${API_URL}/api/auth/students?` // FIXED QUOTES
+      let url = `${API_URL}/api/auth/students?`
       if (searchTerm) url += `search=${searchTerm}&`
       if (level) url += `level=${level}&`
       if (dept) url += `department=${dept}&`
 
       const response = await fetch(url)
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setStudents(data.students || []) // GUARD
-      setFiltered(data.students || []) // GUARD
+      setStudents(data.students || [])
+      setFiltered(data.students || [])
     } catch (err) {
       setError('Failed to load students')
-      setStudents([]) // GUARD
-      setFiltered([]) // GUARD
+      setStudents([])
+      setFiltered([])
     }
     setLoading(false)
   }
@@ -65,7 +67,7 @@ function StudentManagement() {
     setMessage('')
     setError('')
     try {
-      const response = await fetch(`${API_URL}/api/auth/students/toggle`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/auth/students/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,9 +75,7 @@ function StudentManagement() {
           is_active: !student.is_active
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage(data.message)
         fetchStudents(search, levelFilter, deptFilter)
@@ -103,18 +103,7 @@ function StudentManagement() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">🎓 Student Management</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{admin.full_name}</span>
-          <button
-            onClick={() => navigate('/admin/dashboard')}
-            className="bg-white text-gray-900 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar role="admin" user={admin.full_name} links={adminLinks} />
 
       <div className="p-6 max-w-7xl mx-auto">
 
@@ -145,7 +134,7 @@ function StudentManagement() {
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
             {error}
           </div>
         )}
@@ -155,8 +144,6 @@ function StudentManagement() {
           {/* Student List */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-xl shadow overflow-hidden">
-
-              {/* Filters */}
               <div className="p-4 border-b bg-gray-50 flex flex-wrap gap-3">
                 <input
                   type="text"
@@ -178,7 +165,6 @@ function StudentManagement() {
                 </select>
               </div>
 
-              {/* Table */}
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-gray-50">
@@ -206,7 +192,7 @@ function StudentManagement() {
                   ) : (
                     filtered.map((student, i) => (
                       <tr
-                        key={student.id || i} // ADDED GUARD
+                        key={student.id || i}
                         className={`border-b last:border-0 cursor-pointer transition ${
                           selectedStudent?.matric_no === student.matric_no
                             ? 'bg-blue-50'
@@ -214,23 +200,17 @@ function StudentManagement() {
                         }`}
                         onClick={() => setSelectedStudent(student)}>
                         <td className="p-4">
-                          <p className="text-sm font-semibold text-gray-700">
-                            {student.full_name}
-                          </p>
+                          <p className="text-sm font-semibold text-gray-700">{student.full_name}</p>
                           <p className="text-xs text-gray-400">{student.department}</p>
                         </td>
                         <td className="p-4">
                           <p className="text-sm text-gray-600">{student.matric_no}</p>
                         </td>
                         <td className="p-4 text-center">
-                          <span className="text-sm font-semibold text-gray-700">
-                            {student.level}L
-                          </span>
+                          <span className="text-sm font-semibold text-gray-700">{student.level}L</span>
                         </td>
                         <td className="p-4 text-center">
-                          <span className="text-sm font-bold text-blue-700">
-                            {student.cgpa}
-                          </span>
+                          <span className="text-sm font-bold text-blue-700">{student.cgpa}</span>
                         </td>
                         <td className="p-4 text-center">
                           <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
@@ -269,9 +249,7 @@ function StudentManagement() {
               <div className="bg-white rounded-xl shadow p-6">
                 <div className="text-center mb-4">
                   <div className="text-5xl mb-2">👤</div>
-                  <h3 className="font-bold text-gray-800 text-lg">
-                    {selectedStudent.full_name}
-                  </h3>
+                  <h3 className="font-bold text-gray-800 text-lg">{selectedStudent.full_name}</h3>
                   <p className="text-gray-500 text-sm">{selectedStudent.matric_no}</p>
                   <span className={`text-xs px-3 py-1 rounded-full font-semibold mt-2 inline-block ${
                     selectedStudent.is_active
@@ -283,45 +261,25 @@ function StudentManagement() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Department</p>
-                    <p className="font-semibold text-gray-700">{selectedStudent.department}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Faculty</p>
-                    <p className="font-semibold text-gray-700">{selectedStudent.faculty}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Level</p>
-                    <p className="font-semibold text-gray-700">{selectedStudent.level}L</p>
-                  </div>
+                  {[
+                    { label: 'Department', value: selectedStudent.department },
+                    { label: 'Faculty', value: selectedStudent.faculty },
+                    { label: 'Level', value: `${selectedStudent.level}L` },
+                    { label: 'Academic Status', value: selectedStudent.academic_status },
+                    { label: 'Email', value: selectedStudent.email },
+                    { label: 'Phone', value: selectedStudent.phone },
+                    { label: 'Registered', value: new Date(selectedStudent.created_at).toLocaleDateString() },
+                  ].map((item, i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500">{item.label}</p>
+                      <p className="font-semibold text-gray-700 text-sm">{item.value}</p>
+                    </div>
+                  ))}
                   <div className="bg-gray-50 rounded-lg p-3">
                     <p className="text-xs text-gray-500">CGPA</p>
                     <p className="font-bold text-blue-700 text-xl">{selectedStudent.cgpa}</p>
                     <p className={`text-xs font-semibold ${getClassification(selectedStudent.cgpa).color}`}>
                       {getClassification(selectedStudent.cgpa).text}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Academic Status</p>
-                    <p className="font-semibold text-gray-700">
-                      {selectedStudent.academic_status}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Email</p>
-                    <p className="font-semibold text-gray-700 text-sm">
-                      {selectedStudent.email}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Phone</p>
-                    <p className="font-semibold text-gray-700">{selectedStudent.phone}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs text-gray-500">Registered</p>
-                    <p className="font-semibold text-gray-700 text-sm">
-                      {new Date(selectedStudent.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -333,17 +291,13 @@ function StudentManagement() {
                       ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}>
-                  {selectedStudent.is_active
-                    ? '🚫 Deactivate Account'
-                    : '✅ Activate Account'}
+                  {selectedStudent.is_active ? '🚫 Deactivate Account' : '✅ Activate Account'}
                 </button>
               </div>
             ) : (
               <div className="bg-white rounded-xl shadow p-6 text-center">
                 <p className="text-4xl mb-3">👆</p>
-                <p className="text-gray-500 text-sm">
-                  Click on a student to view their full profile
-                </p>
+                <p className="text-gray-500 text-sm">Click on a student to view their full profile</p>
               </div>
             )}
           </div>

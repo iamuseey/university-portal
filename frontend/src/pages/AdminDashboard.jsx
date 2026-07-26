@@ -1,7 +1,7 @@
-import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar' // ADDED
+import Navbar from '../components/Navbar'
+import { adminLinks } from '../links'
 
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null)
@@ -16,22 +16,6 @@ function AdminDashboard() {
     setAdmin(JSON.parse(savedAdmin))
   }, [])
 
-  // ADDED: Admin navigation links
-  const adminLinks = [
-    { label: 'Dashboard', icon: '🏠', path: '/admin/dashboard' },
-    { label: 'Manage Students', icon: '🎓', path: '/admin/students' },
-    { label: 'Manage Staff', icon: '👨‍🏫', path: '/admin/staff' },
-    { label: 'Course Reg Control', icon: '📝', path: '/admin/courses' },
-    { label: 'Results Control', icon: '📊', path: '/admin/results' },
-    { label: 'Fee Management', icon: '💰', path: '/admin/fees' },
-    { label: 'Transcripts', icon: '📄', path: '/admin/transcripts' },
-    { label: 'Admissions', icon: '📥', path: '/admin/admissions' },
-    { label: 'System Settings', icon: '⚙️', path: '/admin/settings' },
-    { label: 'My Profile', icon: '👤', path: '/admin/profile' },
-  ]
-
-  // REMOVED: handleLogout - Navbar handles it now
-
   if (!admin) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -43,7 +27,6 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* REPLACED: Navbar */}
       <Navbar role="admin" user={admin.full_name} links={adminLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
@@ -107,16 +90,16 @@ function AdminDashboard() {
             ))}
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links + Pending */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Admin Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {adminLinks.slice(1, 9).map((link, i) => ( // USING adminLinks NOW
+                {adminLinks.slice(1).map((link, i) => (
                   <button
                     key={i}
                     onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
+                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
                   </button>
@@ -131,8 +114,14 @@ function AdminDashboard() {
                 { action: "3 transcript requests pending", urgent: true },
                 { action: "2 deferral applications to review", urgent: false },
               ].map((item, i) => (
-                <div key={i} className={`rounded-lg p-3 mb-2 border ${item.urgent ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
-                  <p className={`text-sm font-semibold ${item.urgent ? 'text-red-700' : 'text-yellow-700'}`}>
+                <div key={i} className={`rounded-lg p-3 mb-2 border ${
+                  item.urgent
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-yellow-50 border-yellow-200'
+                }`}>
+                  <p className={`text-sm font-semibold ${
+                    item.urgent ? 'text-red-700' : 'text-yellow-700'
+                  }`}>
                     {item.action}
                   </p>
                 </div>

@@ -1,47 +1,21 @@
-import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar' // ADDED
+import Navbar from '../components/Navbar'
+import { studentLinks } from '../links'
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Get student data from localStorage
     const savedStudent = localStorage.getItem('student')
-
     if (!savedStudent) {
-      // No data found — send back to login
       navigate('/login')
       return
     }
-
     setStudent(JSON.parse(savedStudent))
   }, [])
 
-  // ADDED: Student navigation links
-  const studentLinks = [
-    { label: 'Dashboard', icon: '🏠', path: '/student/dashboard' },
-    { label: 'Course Registration', icon: '📝', path: '/student/courses' },
-    { label: 'Fee Payment', icon: '💳', path: '/student/fees' },
-    { label: 'My Results', icon: '📊', path: '/student/results' },
-    { label: 'Exam Card', icon: '🪪', path: '/student/examcard' },
-    { label: 'SIWES/IT', icon: '🏢', path: '/student/siwes' },
-    { label: 'Medical', icon: '🏥', path: '/student/medical' },
-    { label: 'Library', icon: '📚', path: '/student/library' },
-    { label: 'Hostel', icon: '🏠', path: '/student/hostel' },
-    { label: 'Documents', icon: '📄', path: '/student/documents' },
-    { label: 'My Profile', icon: '👤', path: '/student/profile' },
-  ]
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('student')
-    navigate('/login')
-  }
-
-  // Show loading while data loads
   if (!student) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -53,15 +27,8 @@ function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* REPLACED: Top Navigation Bar */}
-      <Navbar 
-        role="student" 
-        user={student.full_name} 
-        links={studentLinks} 
-        onLogout={handleLogout} // pass logout to Navbar
-      />
+      <Navbar role="student" user={student.full_name} links={studentLinks} />
 
-      {/* Main Content */}
       <div className="p-6 max-w-6xl mx-auto">
 
         {/* Student Info Card */}
@@ -143,17 +110,18 @@ function StudentDashboard() {
                 {[
                   { label: "My Results", icon: "📊", path: "/student/results" },
                   { label: "Pay Fees", icon: "💳", path: "/student/fees" },
-                  { label: "Timetable", icon: "📅", path: "/student/timetable" },
                   { label: "Course Reg", icon: "📝", path: "/student/courses" },
+                  { label: "Exam Card", icon: "🪪", path: "/student/examcard" },
+                  { label: "SIWES/IT", icon: "🏢", path: "/student/siwes" },
+                  { label: "Medical", icon: "🏥", path: "/student/medical" },
                   { label: "Library", icon: "📚", path: "/student/library" },
                   { label: "Hostel", icon: "🏠", path: "/student/hostel" },
                   { label: "Documents", icon: "📄", path: "/student/documents" },
-                  { label: "Exam Card", icon: "🪪", path: "/student/examcard" },
                   { label: "My Profile", icon: "👤", path: "/student/profile" },
                 ].map((link, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => navigate(link.path)} 
+                  <button
+                    key={i}
+                    onClick={() => navigate(link.path)}
                     className="flex items-center gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
@@ -165,14 +133,13 @@ function StudentDashboard() {
             {/* Notifications */}
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">🔔 Notifications</h3>
-              <div className="bg-yellow-50 border-yellow-200 rounded-lg p-3">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                 <p className="text-sm font-semibold text-yellow-800">Exam Timetable Released</p>
                 <p className="text-xs text-yellow-600 mt-1">
                   Second semester exams begin July 20th. Check your timetable.
                 </p>
               </div>
             </div>
-
           </div>
         </div>
       </div>

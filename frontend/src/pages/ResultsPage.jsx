@@ -1,6 +1,8 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { studentLinks } from '../links'
 
 function ResultsPage() {
   const [student, setStudent] = useState(null)
@@ -11,9 +13,9 @@ function ResultsPage() {
   const [selectedSemester, setSelectedSemester] = useState('')
   const [gpa, setGpa] = useState(0)
   const [totalUnits, setTotalUnits] = useState(0)
-  const [loading, setLoading] = useState(true) // NEW
-  const [loadingResults, setLoadingResults] = useState(false) // NEW
-  const [error, setError] = useState('') // NEW
+  const [loading, setLoading] = useState(true)
+  const [loadingResults, setLoadingResults] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -35,12 +37,10 @@ function ResultsPage() {
       const response = await fetch(
         `${API_URL}/api/results/sessions?student_id=${studentData.id}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setSessions(data.sessions || []) // GUARD
-
-      // Auto load first session
-      if (data.sessions && data.sessions.length > 0) { // GUARD
+      setSessions(data.sessions || [])
+      if (data.sessions && data.sessions.length > 0) {
         const first = data.sessions[0]
         setSelectedSession(first.session)
         setSelectedSemester(first.semester)
@@ -48,7 +48,7 @@ function ResultsPage() {
       }
     } catch (err) {
       setError('Failed to load sessions')
-      setSessions([]) // GUARD
+      setSessions([])
     }
     setLoading(false)
   }
@@ -60,14 +60,14 @@ function ResultsPage() {
       const response = await fetch(
         `${API_URL}/api/results/student?student_id=${studentData.id}&session=${session}&semester=${semester}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setResults(data.results || []) // GUARD
-      setGpa(data.gpa || 0) // GUARD
-      setTotalUnits(data.total_units || 0) // GUARD
+      setResults(data.results || [])
+      setGpa(data.gpa || 0)
+      setTotalUnits(data.total_units || 0)
     } catch (err) {
       setError('Failed to load results')
-      setResults([]) // GUARD
+      setResults([])
       setGpa(0)
       setTotalUnits(0)
     }
@@ -79,11 +79,10 @@ function ResultsPage() {
       const response = await fetch(
         `${API_URL}/api/results/cgpa?student_id=${studentData.id}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setCgpaData(data || null) // GUARD
+      setCgpaData(data || null)
     } catch (err) {
-      console.error('Failed to load CGPA')
       setCgpaData(null)
     }
   }
@@ -119,7 +118,7 @@ function ResultsPage() {
     </div>
   )
 
-  if (loading) return ( // NEW
+  if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <p>Loading results...</p>
     </div>
@@ -128,23 +127,12 @@ function ResultsPage() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">📊 My Results</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{student.full_name}</span>
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar role="student" user={student.full_name} links={studentLinks} />
 
       <div className="p-6 max-w-5xl mx-auto">
 
-        {error && ( // NEW
-          <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
             {error}
           </div>
         )}
@@ -154,18 +142,16 @@ function ResultsPage() {
           <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-4">
             <div className="bg-white rounded-xl shadow p-5 text-center col-span-2 md:col-span-1">
               <p className="text-sm text-gray-500 mb-1">Cumulative GPA</p>
-              <p className="text-4xl font-bold text-blue-700">{cgpaData.cgpa || 0}</p> {/* GUARD */}
-              <p className="text-xs text-green-600 font-semibold mt-1">
-                {cgpaData.classification}
-              </p>
+              <p className="text-4xl font-bold text-blue-700">{cgpaData.cgpa || 0}</p>
+              <p className="text-xs text-green-600 font-semibold mt-1">{cgpaData.classification}</p>
             </div>
             <div className="bg-white rounded-xl shadow p-5 text-center">
               <p className="text-sm text-gray-500 mb-1">Total Units</p>
-              <p className="text-3xl font-bold text-gray-700">{cgpaData.total_units || 0}</p> {/* GUARD */}
+              <p className="text-3xl font-bold text-gray-700">{cgpaData.total_units || 0}</p>
             </div>
             <div className="bg-white rounded-xl shadow p-5 text-center">
               <p className="text-sm text-gray-500 mb-1">Total Points</p>
-              <p className="text-3xl font-bold text-gray-700">{cgpaData.total_points || 0}</p> {/* GUARD */}
+              <p className="text-3xl font-bold text-gray-700">{cgpaData.total_points || 0}</p>
             </div>
             <div className="bg-white rounded-xl shadow p-5 text-center">
               <p className="text-sm text-gray-500 mb-1">Current GPA</p>
@@ -178,9 +164,7 @@ function ResultsPage() {
         {/* Session Selector */}
         {sessions.length > 0 && (
           <div className="bg-white rounded-xl shadow p-4 mb-6">
-            <p className="text-sm font-semibold text-gray-600 mb-3">
-              Select Session & Semester
-            </p>
+            <p className="text-sm font-semibold text-gray-600 mb-3">Select Session & Semester</p>
             <div className="flex flex-wrap gap-2">
               {sessions.map((s, i) => (
                 <button
@@ -188,7 +172,7 @@ function ResultsPage() {
                   onClick={() => handleSessionChange(s.session, s.semester)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
                     selectedSession === s.session && selectedSemester == s.semester
-                     ? 'bg-blue-700 text-white'
+                      ? 'bg-blue-700 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-blue-50'
                   }`}>
                   {s.session} — Sem {s.semester}
@@ -200,20 +184,18 @@ function ResultsPage() {
 
         {/* Results Table */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="p-5 border-b bg-gray-50 flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-gray-800">
-                Results — {selectedSession} Semester {selectedSemester}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {results.length} courses | {totalUnits} units | GPA: {gpa}
-              </p>
-            </div>
+          <div className="p-5 border-b bg-gray-50">
+            <h3 className="font-bold text-gray-800">
+              Results — {selectedSession} Semester {selectedSemester}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {results.length} courses | {totalUnits} units | GPA: {gpa}
+            </p>
           </div>
 
-          {loadingResults? ( // NEW
+          {loadingResults ? (
             <div className="text-center py-12 text-gray-500">Loading results...</div>
-          ) : results.length === 0? (
+          ) : results.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-4xl mb-3">📋</p>
               <p className="text-gray-500">No results available for this period</p>
@@ -233,7 +215,7 @@ function ResultsPage() {
               </thead>
               <tbody>
                 {results.map((result, i) => (
-                  <tr key={result.id || i} className="border-b last:border-0 hover:bg-gray-50"> {/* GUARD */}
+                  <tr key={result.id || i} className="border-b last:border-0 hover:bg-gray-50">
                     <td className="p-4">
                       <p className="text-sm font-semibold text-gray-700">{result.code}</p>
                       <p className="text-xs text-gray-500">{result.title}</p>
@@ -274,12 +256,10 @@ function ResultsPage() {
                   <td className="p-4 font-bold text-blue-800">Total</td>
                   <td className="p-4 text-center font-bold text-blue-800">{totalUnits}</td>
                   <td colSpan="4" className="p-4 text-center">
-                    <span className="text-sm font-bold text-blue-800">
-                      GPA: {gpa}
-                    </span>
+                    <span className="text-sm font-bold text-blue-800">GPA: {gpa}</span>
                   </td>
                   <td className="p-4 text-center font-bold text-blue-800">
-                    {cgpaData?.total_points || 0} {/* GUARD */}
+                    {cgpaData?.total_points || 0}
                   </td>
                 </tr>
               </tfoot>

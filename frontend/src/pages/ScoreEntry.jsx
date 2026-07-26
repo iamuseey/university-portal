@@ -1,6 +1,8 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { staffLinks } from '../links'
 
 function ScoreEntry() {
   const [staff, setStaff] = useState(null)
@@ -8,8 +10,8 @@ function ScoreEntry() {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [students, setStudents] = useState([])
   const [scores, setScores] = useState({})
-  const [loading, setLoading] = useState(true) // CHANGED
-  const [loadingStudents, setLoadingStudents] = useState(false) // NEW
+  const [loading, setLoading] = useState(true)
+  const [loadingStudents, setLoadingStudents] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -35,12 +37,12 @@ function ScoreEntry() {
       const response = await fetch(
         `${API_URL}/api/courses/available?level=300&department=${staffData.department}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setCourses(data.courses || []) // GUARD
+      setCourses(data.courses || [])
     } catch (err) {
       setError('Failed to load courses')
-      setCourses([]) // GUARD
+      setCourses([])
     }
     setLoading(false)
   }
@@ -53,13 +55,11 @@ function ScoreEntry() {
       const response = await fetch(
         `${API_URL}/api/scores/students?course_id=${course.id}&session=${SESSION}&semester=${SEMESTER}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setStudents(data.students || []) // GUARD
-
-      // Initialize scores
+      setStudents(data.students || [])
       const initialScores = {}
-      data.students?.forEach(s => { // GUARD
+      data.students?.forEach(s => {
         initialScores[s.student_id] = {
           ca_score: s.ca_score || '',
           exam_score: s.exam_score || ''
@@ -68,7 +68,7 @@ function ScoreEntry() {
       setScores(initialScores)
     } catch (err) {
       setError('Failed to load students')
-      setStudents([]) // GUARD
+      setStudents([])
     }
     setLoadingStudents(false)
   }
@@ -80,9 +80,9 @@ function ScoreEntry() {
 
   const handleScoreChange = (studentId, field, value) => {
     setScores(prev => ({
-     ...prev,
+      ...prev,
       [studentId]: {
-       ...prev[studentId],
+        ...prev[studentId],
         [field]: value
       }
     }))
@@ -100,14 +100,12 @@ function ScoreEntry() {
     setLoading(true)
     setMessage('')
     setError('')
-
     try {
       const scoreData = Object.entries(scores).map(([studentId, score]) => {
         const ca = parseFloat(score.ca_score) || 0
         const exam = parseFloat(score.exam_score) || 0
         const total = ca + exam
         const { grade, point } = calculateGrade(total)
-
         return {
           student_id: parseInt(studentId),
           course_id: selectedCourse.id,
@@ -120,8 +118,7 @@ function ScoreEntry() {
           grade_point: point
         }
       })
-
-      const response = await fetch(`${API_URL}/api/scores/save`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/scores/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,9 +126,7 @@ function ScoreEntry() {
           submitted_by: staff.user_id
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage('✅ Scores saved successfully!')
         fetchStudents(selectedCourse)
@@ -148,9 +143,8 @@ function ScoreEntry() {
     setLoading(true)
     setMessage('')
     setError('')
-
     try {
-      const response = await fetch(`${API_URL}/api/scores/submit`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/scores/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -160,9 +154,7 @@ function ScoreEntry() {
           submitted_by: staff.user_id
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage('🎉 Results submitted to HOD for approval!')
       } else {
@@ -176,7 +168,7 @@ function ScoreEntry() {
 
   if (!staff) return null
 
-  if (loading) return ( // NEW
+  if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <p>Loading courses...</p>
     </div>
@@ -185,18 +177,7 @@ function ScoreEntry() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">✏️ Score Entry</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{staff.full_name}</span>
-          <button
-            onClick={() => navigate('/staff/dashboard')}
-            className="bg-white text-green-800 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar role="staff" user={staff.full_name} links={staffLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
 
@@ -206,13 +187,13 @@ function ScoreEntry() {
             <h3 className="font-bold text-gray-800 mb-4">
               📚 Select Course to Enter Scores
             </h3>
-            {courses.length === 0? ( // GUARD
+            {courses.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No courses assigned to you</p>
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {courses.map((course, i) => (
                   <button
-                    key={course.id || i} // GUARD
+                    key={course.id || i}
                     onClick={() => handleCourseSelect(course)}
                     className="flex justify-between items-center p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition text-left">
                     <div>
@@ -232,7 +213,6 @@ function ScoreEntry() {
         {/* Score Entry Table */}
         {selectedCourse && (
           <div>
-            {/* Course Header */}
             <div className="bg-white rounded-xl shadow p-5 mb-4 flex justify-between items-center">
               <div>
                 <h3 className="font-bold text-gray-800 text-lg">
@@ -254,23 +234,21 @@ function ScoreEntry() {
               </button>
             </div>
 
-            {/* Messages */}
             {message && (
               <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 mb-4 text-sm">
                 {message}
               </div>
             )}
             {error && (
-              <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
                 {error}
               </div>
             )}
 
-            {/* Score Table */}
             <div className="bg-white rounded-xl shadow overflow-hidden">
-              {loadingStudents? ( // NEW
+              {loadingStudents ? (
                 <div className="text-center py-12 text-gray-500">Loading students...</div>
-              ) : students.length === 0? (
+              ) : students.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-4xl mb-3">👥</p>
                   <p className="text-gray-500">No students registered for this course</p>
@@ -294,14 +272,11 @@ function ScoreEntry() {
                       const exam = parseFloat(scores[student.student_id]?.exam_score) || 0
                       const total = ca + exam
                       const { grade } = calculateGrade(total)
-
                       return (
-                        <tr key={student.student_id || i} className="border-b last:border-0 hover:bg-gray-50"> {/* GUARD */}
+                        <tr key={student.student_id || i} className="border-b last:border-0 hover:bg-gray-50">
                           <td className="p-4 text-gray-500 text-sm">{i + 1}</td>
                           <td className="p-4">
-                            <p className="text-sm font-semibold text-gray-700">
-                              {student.full_name}
-                            </p>
+                            <p className="text-sm font-semibold text-gray-700">{student.full_name}</p>
                           </td>
                           <td className="p-4">
                             <p className="text-sm text-gray-500">{student.matric_no}</p>
@@ -329,19 +304,19 @@ function ScoreEntry() {
                             />
                           </td>
                           <td className="p-4 text-center">
-                            <span className={`text-sm font-bold ${total >= 50? 'text-green-600' : 'text-red-600'}`}>
-                              {total > 0? total : '-'}
+                            <span className={`text-sm font-bold ${total >= 50 ? 'text-green-600' : 'text-red-600'}`}>
+                              {total > 0 ? total : '-'}
                             </span>
                           </td>
                           <td className="p-4 text-center">
                             <span className={`text-sm font-bold px-2 py-1 rounded-full ${
-                              grade === 'A'? 'bg-green-100 text-green-600' :
-                              grade === 'B'? 'bg-blue-100 text-blue-600' :
-                              grade === 'C'? 'bg-yellow-100 text-yellow-600' :
-                              grade === 'D'? 'bg-orange-100 text-orange-600' :
+                              grade === 'A' ? 'bg-green-100 text-green-600' :
+                              grade === 'B' ? 'bg-blue-100 text-blue-600' :
+                              grade === 'C' ? 'bg-yellow-100 text-yellow-600' :
+                              grade === 'D' ? 'bg-orange-100 text-orange-600' :
                               'bg-red-100 text-red-600'
                             }`}>
-                              {total > 0? grade : '-'}
+                              {total > 0 ? grade : '-'}
                             </span>
                           </td>
                         </tr>
@@ -352,20 +327,19 @@ function ScoreEntry() {
               )}
             </div>
 
-            {/* Action Buttons */}
             {students.length > 0 && (
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={handleSaveScores}
                   disabled={loading}
                   className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">
-                  {loading? 'Saving...' : '💾 Save Scores'}
+                  {loading ? 'Saving...' : '💾 Save Scores'}
                 </button>
                 <button
                   onClick={handleSubmitToHOD}
                   disabled={loading}
                   className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition">
-                  {loading? 'Submitting...' : '📤 Submit to HOD'}
+                  {loading ? 'Submitting...' : '📤 Submit to HOD'}
                 </button>
               </div>
             )}

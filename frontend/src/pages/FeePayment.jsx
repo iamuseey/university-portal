@@ -1,15 +1,17 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { studentLinks } from '../links'
 
 function FeePayment() {
   const [student, setStudent] = useState(null)
   const [fees, setFees] = useState([])
   const [payment, setPayment] = useState(null)
   const [totalAmount, setTotalAmount] = useState(0)
-  const [loading, setLoading] = useState(true) // CHANGED
-  const [loadingFees, setLoadingFees] = useState(true) // NEW
-  const [loadingPayment, setLoadingPayment] = useState(true) // NEW
+  const [loading, setLoading] = useState(true)
+  const [loadingFees, setLoadingFees] = useState(true)
+  const [loadingPayment, setLoadingPayment] = useState(true)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -35,13 +37,13 @@ function FeePayment() {
       const response = await fetch(
         `${API_URL}/api/payments/fees?level=${studentData.level}&department=${studentData.department}&session=${SESSION}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setFees(data.fees || []) // GUARD
-      setTotalAmount(data.total_amount || 0) // GUARD
+      setFees(data.fees || [])
+      setTotalAmount(data.total_amount || 0)
     } catch (err) {
       setError('Failed to load fee structure')
-      setFees([]) // GUARD
+      setFees([])
       setTotalAmount(0)
     }
     setLoadingFees(false)
@@ -55,9 +57,9 @@ function FeePayment() {
       const response = await fetch(
         `${API_URL}/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
       )
-      if (!response.ok) throw new Error('Server error') // ADDED
+      if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      const combined = data.payments?.find(p => p.fee_type === 'Combined School Fees') // GUARD
+      const combined = data.payments?.find(p => p.fee_type === 'Combined School Fees')
       setPayment(combined || null)
     } catch (err) {
       setError('Failed to load payment status')
@@ -71,9 +73,8 @@ function FeePayment() {
     setMessage('')
     setError('')
     setLoading(true)
-
     try {
-      const response = await fetch(`${API_URL}/api/payments/generate`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/payments/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -83,9 +84,7 @@ function FeePayment() {
           amount: totalAmount
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setPayment(data.payment)
         setMessage('RRR generated! Use it to pay at any bank or Remita platform.')
@@ -102,9 +101,8 @@ function FeePayment() {
     setMessage('')
     setError('')
     setLoading(true)
-
     try {
-      const response = await fetch(`${API_URL}/api/payments/confirm`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/payments/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,9 +110,7 @@ function FeePayment() {
           remita_rrr: payment.remita_rrr
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage('✅ Payment confirmed successfully!')
         fetchPaymentStatus(student)
@@ -131,7 +127,7 @@ function FeePayment() {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency: 'NGN'
-    }).format(amount || 0) // GUARD
+    }).format(amount || 0)
   }
 
   const isPaid = payment && payment.status === 'paid'
@@ -146,18 +142,7 @@ function FeePayment() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">💳 Fee Payment</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{student.full_name}</span>
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar role="student" user={student.full_name} links={studentLinks} />
 
       <div className="p-6 max-w-3xl mx-auto">
 
@@ -167,9 +152,7 @@ function FeePayment() {
             <div>
               <h2 className="font-bold text-gray-800 text-lg">{student.full_name}</h2>
               <p className="text-sm text-gray-500">Matric: {student.matric_no}</p>
-              <p className="text-sm text-gray-500">
-                {student.level}L — {student.department}
-              </p>
+              <p className="text-sm text-gray-500">{student.level}L — {student.department}</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Session</p>
@@ -186,7 +169,7 @@ function FeePayment() {
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
             {error}
           </div>
         )}
@@ -194,15 +177,12 @@ function FeePayment() {
         {/* Fee Breakdown */}
         <div className="bg-white rounded-xl shadow overflow-hidden mb-6">
           <div className="p-5 border-b bg-gray-50">
-            <h3 className="font-bold text-gray-800">
-              📋 Fee Breakdown — {SESSION}
-            </h3>
+            <h3 className="font-bold text-gray-800">📋 Fee Breakdown — {SESSION}</h3>
           </div>
-          
-          {loadingFees ? ( // ADDED
+          {loadingFees ? (
             <div className="p-8 text-center text-gray-500">Loading fees...</div>
-          ) : fees.length === 0 ? ( // GUARD
-            <div className="p-8 text-center text-gray-500">No fee structure found for your level</div>
+          ) : fees.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No fee structure found</div>
           ) : (
             <table className="w-full">
               <thead>
@@ -214,13 +194,9 @@ function FeePayment() {
               <tbody>
                 {fees.map((fee, i) => (
                   <tr key={i} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="p-4">
-                      <p className="text-sm text-gray-700">{fee.fee_type}</p>
-                    </td>
-                    <td className="p-4 text-right">
-                      <p className="text-sm font-semibold text-gray-800">
-                        {formatAmount(fee.amount)}
-                      </p>
+                    <td className="p-4 text-sm text-gray-700">{fee.fee_type}</td>
+                    <td className="p-4 text-right text-sm font-semibold text-gray-800">
+                      {formatAmount(fee.amount)}
                     </td>
                   </tr>
                 ))}
@@ -241,11 +217,10 @@ function FeePayment() {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="font-bold text-gray-800 mb-4">🏦 Payment</h3>
 
-          {loadingPayment ? ( // ADDED
+          {loadingPayment ? (
             <p className="text-center text-gray-500">Loading payment status...</p>
           ) : (
             <>
-              {/* Not paid yet */}
               {!payment && (
                 <div className="text-center py-4">
                   <p className="text-gray-500 text-sm mb-6">
@@ -261,7 +236,6 @@ function FeePayment() {
                 </div>
               )}
 
-              {/* RRR Generated — Pending */}
               {isPending && (
                 <div>
                   <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-5 mb-4">
@@ -271,22 +245,17 @@ function FeePayment() {
                     <div className="grid grid-cols-2 gap-4 mb-3">
                       <div>
                         <p className="text-xs text-gray-500">Amount</p>
-                        <p className="font-bold text-gray-800 text-lg">
-                          {formatAmount(payment.amount)}
-                        </p>
+                        <p className="font-bold text-gray-800 text-lg">{formatAmount(payment.amount)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Remita RRR</p>
-                        <p className="font-bold text-blue-700 text-lg">
-                          {payment.remita_rrr}
-                        </p>
+                        <p className="font-bold text-blue-700 text-lg">{payment.remita_rrr}</p>
                       </div>
                     </div>
                     <p className="text-xs text-gray-500">
                       Pay using this RRR at any bank branch, Remita.net, or USSD *7797#
                     </p>
                   </div>
-
                   <button
                     onClick={handleConfirmPayment}
                     disabled={loading}
@@ -296,13 +265,10 @@ function FeePayment() {
                 </div>
               )}
 
-              {/* Paid */}
               {isPaid && (
                 <div className="text-center py-4">
                   <div className="text-6xl mb-4">✅</div>
-                  <h3 className="text-xl font-bold text-green-700 mb-2">
-                    Payment Confirmed!
-                  </h3>
+                  <h3 className="text-xl font-bold text-green-700 mb-2">Payment Confirmed!</h3>
                   <p className="text-gray-500 text-sm mb-4">
                     Your school fees for {SESSION} have been paid successfully.
                   </p>
@@ -310,9 +276,7 @@ function FeePayment() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <p className="text-xs text-gray-500">Amount Paid</p>
-                        <p className="font-bold text-green-700">
-                          {formatAmount(payment.amount)}
-                        </p>
+                        <p className="font-bold text-green-700">{formatAmount(payment.amount)}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">RRR</p>

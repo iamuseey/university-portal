@@ -1,15 +1,17 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { studentLinks } from '../links'
 
 function CourseRegistration() {
   const [student, setStudent] = useState(null)
   const [availableCourses, setAvailableCourses] = useState([])
   const [registeredCourses, setRegisteredCourses] = useState([])
   const [totalUnits, setTotalUnits] = useState(0)
-  const [loading, setLoading] = useState(true) // CHANGED: start true
-  const [loadingCourses, setLoadingCourses] = useState(true) // NEW
-  const [loadingRegistered, setLoadingRegistered] = useState(true) // NEW
+  const [loading, setLoading] = useState(true)
+  const [loadingCourses, setLoadingCourses] = useState(true)
+  const [loadingRegistered, setLoadingRegistered] = useState(true)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -38,10 +40,10 @@ function CourseRegistration() {
       )
       if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setAvailableCourses(data.courses || []) // GUARD
+      setAvailableCourses(data.courses || [])
     } catch (err) {
       setError('Failed to load courses')
-      setAvailableCourses([]) // GUARD
+      setAvailableCourses([])
     }
     setLoadingCourses(false)
     setLoading(false)
@@ -56,11 +58,11 @@ function CourseRegistration() {
       )
       if (!response.ok) throw new Error('Server error')
       const data = await response.json()
-      setRegisteredCourses(data.registered || []) // GUARD
-      setTotalUnits(data.total_units || 0) // GUARD
+      setRegisteredCourses(data.registered || [])
+      setTotalUnits(data.total_units || 0)
     } catch (err) {
       setError('Failed to load registered courses')
-      setRegisteredCourses([]) // GUARD
+      setRegisteredCourses([])
       setTotalUnits(0)
     }
     setLoadingRegistered(false)
@@ -75,9 +77,8 @@ function CourseRegistration() {
     setMessage('')
     setError('')
     setLoading(true)
-
     try {
-      const response = await fetch(`${API_URL}/api/courses/add`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/courses/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,9 +89,7 @@ function CourseRegistration() {
           level: student.level
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage(`✅ ${course.code} added successfully!`)
         fetchRegistered(student)
@@ -107,9 +106,8 @@ function CourseRegistration() {
     setMessage('')
     setError('')
     setLoading(true)
-
     try {
-      const response = await fetch(`${API_URL}/api/courses/remove`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/courses/remove`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,9 +116,7 @@ function CourseRegistration() {
           session: SESSION
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage(`❌ ${course.code} removed`)
         fetchRegistered(student)
@@ -136,9 +132,8 @@ function CourseRegistration() {
   const handleSubmit = async () => {
     setMessage('')
     setError('')
-
     try {
-      const response = await fetch(`${API_URL}/api/courses/submit`, { // FIXED QUOTES
+      const response = await fetch(`${API_URL}/api/courses/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,9 +143,7 @@ function CourseRegistration() {
           level: student.level
         })
       })
-
       const data = await response.json()
-
       if (response.ok) {
         setMessage(`🎉 ${data.message} Total: ${data.total_units} units`)
       } else {
@@ -165,23 +158,16 @@ function CourseRegistration() {
     ? { 100: 40, 200: 35, 300: 30, 400: 30, 500: 24 }[student.level]
     : 30
 
-  if (!student) return <div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>
+  if (!student) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p>Loading...</p>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
-      <nav className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold">🎓 Course Registration</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{student.full_name}</span>
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar role="student" user={student.full_name} links={studentLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
 
@@ -214,20 +200,21 @@ function CourseRegistration() {
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
             {error}
           </div>
         )}
 
-        {/* LOADING STATE */}
-        {loadingCourses && <p className="text-center text-gray-500 mb-4">Loading courses...</p>}
+        {loadingCourses && (
+          <p className="text-center text-gray-500 mb-4">Loading courses...</p>
+        )}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
           {/* Available Courses */}
           <div className="bg-white rounded-xl shadow p-6">
             <h3 className="font-bold text-gray-800 mb-4">📚 Available Courses</h3>
-            {availableCourses.length === 0 && !loadingCourses ? ( // GUARD
+            {availableCourses.length === 0 && !loadingCourses ? (
               <p className="text-gray-400 text-sm text-center py-8">No courses available</p>
             ) : (
               availableCourses.map((course) => (
@@ -263,8 +250,9 @@ function CourseRegistration() {
               ✅ My Registered Courses ({registeredCourses.length})
             </h3>
 
-            {loadingRegistered ? <p className="text-center text-gray-500">Loading...</p> :
-             registeredCourses.length === 0 ? (
+            {loadingRegistered ? (
+              <p className="text-center text-gray-500">Loading...</p>
+            ) : registeredCourses.length === 0 ? (
               <p className="text-gray-400 text-sm text-center py-8">
                 No courses registered yet. Add courses from the left!
               </p>
@@ -295,7 +283,6 @@ function CourseRegistration() {
               ))
             )}
 
-            {/* Submit Button */}
             {registeredCourses.length > 0 && (
               <button
                 onClick={handleSubmit}

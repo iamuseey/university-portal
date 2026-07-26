@@ -1,6 +1,8 @@
 import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import { studentLinks } from '../links'
 
 function ExamCard() {
   const [student, setStudent] = useState(null)
@@ -26,29 +28,22 @@ function ExamCard() {
 
   const fetchData = async (studentData) => {
     try {
-      // Fetch registered courses
       const coursesRes = await fetch(
         `${API_URL}/api/courses/registered?student_id=${studentData.id}&session=${SESSION}&semester=${SEMESTER}`
       )
       const coursesData = await coursesRes.json()
-      setRegisteredCourses(coursesData.registered)
+      setRegisteredCourses(coursesData.registered || [])
 
-      // Fetch payment status
       const paymentRes = await fetch(
         `${API_URL}/api/payments/status?student_id=${studentData.id}&session=${SESSION}`
       )
       const paymentData = await paymentRes.json()
-      const paid = paymentData.payments.find(p => p.status === 'paid')
+      const paid = paymentData.payments?.find(p => p.status === 'paid')
       setPaymentStatus(paid || null)
-
     } catch (err) {
       setError('Failed to load exam card data')
     }
     setLoading(false)
-  }
-
-  const handlePrint = () => {
-    window.print()
   }
 
   const generateExamNumber = (matric) => {
@@ -69,20 +64,17 @@ function ExamCard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar - hidden when printing */}
-      <nav className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center print:hidden">
-        <h1 className="text-lg font-bold">🪪 Exam Card</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{student.full_name}</span>
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="bg-white text-blue-800 text-sm px-3 py-1 rounded-lg font-semibold">
-            Back to Dashboard
-          </button>
-        </div>
-      </nav>
+      <div className="print:hidden">
+        <Navbar role="student" user={student.full_name} links={studentLinks} />
+      </div>
 
       <div className="p-6 max-w-3xl mx-auto">
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Not Cleared Warning */}
         {!isCleared && (
@@ -114,38 +106,29 @@ function ExamCard() {
         {/* Exam Card */}
         {isCleared && (
           <>
-            {/* Print Button */}
             <div className="flex justify-end mb-4 print:hidden">
               <button
-                onClick={handlePrint}
+                onClick={() => window.print()}
                 className="bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-800 flex items-center gap-2">
                 🖨️ Print Exam Card
               </button>
             </div>
 
-            {/* Actual Card */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-blue-800">
 
-              {/* Card Header */}
               <div className="bg-blue-800 text-white p-6 text-center">
                 <div className="text-4xl mb-2">🎓</div>
-                <h1 className="text-xl font-bold uppercase">
-                  Federal University Portal
-                </h1>
-                <h2 className="text-lg font-semibold mt-1">
-                  Student Examination Card
-                </h2>
+                <h1 className="text-xl font-bold uppercase">Federal University Portal</h1>
+                <h2 className="text-lg font-semibold mt-1">Student Examination Card</h2>
                 <p className="text-blue-200 text-sm mt-1">
                   {SESSION} Academic Session — Semester {SEMESTER}
                 </p>
               </div>
 
-              {/* Clearance Banner */}
               <div className="bg-green-500 text-white text-center py-2 font-bold text-sm">
                 ✅ CLEARED FOR EXAMINATION
               </div>
 
-              {/* Student Details */}
               <div className="p-6 border-b">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -170,14 +153,11 @@ function ExamCard() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase font-semibold">Exam Number</p>
-                    <p className="font-bold text-blue-700">
-                      {generateExamNumber(student.matric_no)}
-                    </p>
+                    <p className="font-bold text-blue-700">{generateExamNumber(student.matric_no)}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Payment Confirmation */}
               <div className="px-6 py-3 bg-green-50 border-b flex items-center gap-3">
                 <span className="text-green-600 text-xl">💳</span>
                 <div>
@@ -191,7 +171,6 @@ function ExamCard() {
                 </div>
               </div>
 
-              {/* Registered Courses */}
               <div className="p-6">
                 <h3 className="font-bold text-gray-800 mb-3">
                   Registered Courses ({registeredCourses.length})
@@ -226,7 +205,6 @@ function ExamCard() {
                 </table>
               </div>
 
-              {/* Card Footer */}
               <div className="bg-gray-50 border-t p-4">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>

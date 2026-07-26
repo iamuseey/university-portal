@@ -1,7 +1,7 @@
-import API_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar' // ADDED
+import Navbar from '../components/Navbar'
+import { staffLinks } from '../links'
 
 function StaffDashboard() {
   const [staff, setStaff] = useState(null)
@@ -16,21 +16,6 @@ function StaffDashboard() {
     setStaff(JSON.parse(savedStaff))
   }, [])
 
-  // ADDED: Staff navigation links
-  const staffLinks = [
-    { label: 'Dashboard', icon: '🏠', path: '/staff/dashboard' },
-    { label: 'Enter Scores', icon: '✏️', path: '/staff/scores' },
-    { label: 'Class List', icon: '👥', path: '/staff/classlist' },
-    { label: 'Submit Results', icon: '📤', path: '/staff/results' },
-    { label: 'My Timetable', icon: '📅', path: '/staff/timetable' },
-    { label: 'Upload Materials', icon: '📂', path: '/staff/materials' },
-    { label: 'Announcements', icon: '📢', path: '/staff/announcements' },
-    { label: 'Attendance', icon: '☑️', path: '/staff/attendance' },
-    { label: 'My Profile', icon: '👤', path: '/staff/profile' },
-  ]
-
-  // REMOVED: handleLogout function - Navbar handles it now
-
   if (!staff) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -42,7 +27,6 @@ function StaffDashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* REPLACED: Navbar */}
       <Navbar role="staff" user={staff.full_name} links={staffLinks} />
 
       <div className="p-6 max-w-6xl mx-auto">
@@ -107,24 +91,15 @@ function StaffDashboard() {
             ))}
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links + Notification */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Enter Scores", icon: "✏️", path: "/staff/scores" },
-                  { label: "Class List", icon: "👥", path: "/staff/classlist" }, // FIXED: added path
-                  { label: "Submit Results", icon: "📤", path: "/staff/results" }, // FIXED: added path
-                  { label: "My Timetable", icon: "📅", path: "/staff/timetable" }, // FIXED: added path
-                  { label: "Upload Materials", icon: "📂", path: "/staff/materials" }, // FIXED: added path
-                  { label: "Announcements", icon: "📢", path: "/staff/announcements" }, // FIXED: added path
-                  { label: "Attendance", icon: "☑️", path: "/staff/attendance" }, // FIXED: added path
-                  { label: "My Profile", icon: "👤", path: "/staff/profile" }, // FIXED: added path
-                ].map((link, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => link.path && navigate(link.path)}
+                {staffLinks.map((link, i) => (
+                  <button
+                    key={i}
+                    onClick={() => navigate(link.path)}
                     className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
                     <span>{link.icon}</span>
                     <span>{link.label}</span>
@@ -133,7 +108,6 @@ function StaffDashboard() {
               </div>
             </div>
 
-            {/* Notification */}
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">🔔 Notifications</h3>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
