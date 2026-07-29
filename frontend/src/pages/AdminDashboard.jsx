@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { adminLinks } from '../links'
+import * as Icons from 'react-icons/io5'
 
 function AdminDashboard() {
   const [admin, setAdmin] = useState(null)
@@ -13,8 +14,17 @@ function AdminDashboard() {
       navigate('/admin/login')
       return
     }
-    setAdmin(JSON.parse(savedAdmin))
-  }, [])
+
+    const adminData = JSON.parse(savedAdmin)
+
+    // FORCE PASSWORD CHANGE ON FIRST LOGIN
+    if (adminData.first_login) {
+      navigate('/change-password')
+      return
+    }
+
+    setAdmin(adminData)
+  }, [navigate])
 
   if (!admin) {
     return (
@@ -90,20 +100,25 @@ function AdminDashboard() {
             ))}
           </div>
 
-          {/* Quick Links + Pending */}
+          {/* Quick Links + Pending - FIXED */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Admin Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {adminLinks.slice(1).map((link, i) => (
-                  <button
-                    key={i}
-                    onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
-                    <span>{link.icon}</span>
-                    <span>{link.label}</span>
-                  </button>
-                ))}
+                {adminLinks.slice(1).map((link, i) => {
+                  const Icon = Icons[link.icon]
+                  if (!Icon) return null
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => navigate(link.path)}
+                      className="flex items-center gap-2 bg-gray-50 hover:bg-red-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition"
+                    >
+                      <Icon className="text-lg" />
+                      <span>{link.label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -116,11 +131,11 @@ function AdminDashboard() {
               ].map((item, i) => (
                 <div key={i} className={`rounded-lg p-3 mb-2 border ${
                   item.urgent
-                    ? 'bg-red-50 border-red-200'
+                   ? 'bg-red-50 border-red-200'
                     : 'bg-yellow-50 border-yellow-200'
                 }`}>
                   <p className={`text-sm font-semibold ${
-                    item.urgent ? 'text-red-700' : 'text-yellow-700'
+                    item.urgent? 'text-red-700' : 'text-yellow-700'
                   }`}>
                     {item.action}
                   </p>

@@ -13,6 +13,9 @@ import ExamCard from './pages/ExamCard'
 import ScoreEntry from './pages/ScoreEntry'
 import StudentManagement from './pages/StudentManagement'
 import SIWESPage from './pages/SIWESPage'
+import StudentProfile from './pages/StudentProfile'
+import AddStudent from './pages/AddStudent'
+import ChangePassword from './pages/ChangePassword' // 1. ADD THIS
 import ProtectedRoute from './ProtectedRoute'
 
 function App() {
@@ -22,6 +25,13 @@ function App() {
         <Route path="/login" element={<StudentLogin />} />
         <Route path="/staff/login" element={<StaffLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* 2. ADD CHANGE PASSWORD ROUTE */}
+        <Route path="/change-password" element={
+          <ProtectedRoute>
+            <ChangePassword />
+          </ProtectedRoute>
+        } />
 
         <Route path="/student/dashboard" element={
           <ProtectedRoute>
@@ -46,6 +56,12 @@ function App() {
         <Route path="/hod/dashboard" element={
           <ProtectedRoute>
             <HODDashboard />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/student/profile" element={
+          <ProtectedRoute>
+            <StudentProfile />
           </ProtectedRoute>
         } />
 
@@ -105,6 +121,12 @@ function App() {
             <SIWESPage />
           </ProtectedRoute>
         }/>
+
+        <Route path="/admin/add-student" element={ // <-- ADDED
+          <ProtectedRoute>
+            <AddStudent />
+          </ProtectedRoute>
+        } />
 
       </Routes>
     </BrowserRouter>

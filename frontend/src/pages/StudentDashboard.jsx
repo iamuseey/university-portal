@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { studentLinks } from '../links'
+import * as Icons from 'react-icons/io5' // ADD THIS
 
 function StudentDashboard() {
   const [student, setStudent] = useState(null)
@@ -103,37 +104,31 @@ function StudentDashboard() {
           {/* Quick Links + Notifications */}
           <div className="flex flex-col gap-6">
 
-            {/* Quick Links */}
+            {/* Quick Links - FIXED TO USE links.js */}
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "My Results", icon: "📊", path: "/student/results" },
-                  { label: "Pay Fees", icon: "💳", path: "/student/fees" },
-                  { label: "Course Reg", icon: "📝", path: "/student/courses" },
-                  { label: "Exam Card", icon: "🪪", path: "/student/examcard" },
-                  { label: "SIWES/IT", icon: "🏢", path: "/student/siwes" },
-                  { label: "Medical", icon: "🏥", path: "/student/medical" },
-                  { label: "Library", icon: "📚", path: "/student/library" },
-                  { label: "Hostel", icon: "🏠", path: "/student/hostel" },
-                  { label: "Documents", icon: "📄", path: "/student/documents" },
-                  { label: "My Profile", icon: "👤", path: "/student/profile" },
-                ].map((link, i) => (
-                  <button
-                    key={i}
-                    onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
-                    <span>{link.icon}</span>
-                    <span>{link.label}</span>
-                  </button>
-                ))}
+                {studentLinks.map((link, i) => {
+                  const Icon = Icons[link.icon]
+                  if (!Icon) return null
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => navigate(link.path)}
+                      className="flex items-center gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition"
+                    >
+                      <Icon className="text-lg" />
+                      <span>{link.label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
             {/* Notifications */}
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">🔔 Notifications</h3>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="bg-yellow-50 border-yellow-200 rounded-lg p-3">
                 <p className="text-sm font-semibold text-yellow-800">Exam Timetable Released</p>
                 <p className="text-xs text-yellow-600 mt-1">
                   Second semester exams begin July 20th. Check your timetable.

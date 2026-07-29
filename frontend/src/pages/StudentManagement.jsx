@@ -134,7 +134,7 @@ function StudentManagement() {
           </div>
         )}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+          <div className="bg-red-50 border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
             {error}
           </div>
         )}
@@ -144,25 +144,36 @@ function StudentManagement() {
           {/* Student List */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-xl shadow overflow-hidden">
-              <div className="p-4 border-b bg-gray-50 flex flex-wrap gap-3">
+              {/* Toolbar: stacks on mobile, aligns horizontally on desktop */}
+              <div className="p-4 border-b bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <input
                   type="text"
                   placeholder="🔍 Search name or matric..."
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
-                <select
-                  value={levelFilter}
-                  onChange={(e) => handleLevelFilter(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
-                  <option value="">All Levels</option>
-                  <option value="100">100L</option>
-                  <option value="200">200L</option>
-                  <option value="300">300L</option>
-                  <option value="400">400L</option>
-                  <option value="500">500L</option>
-                </select>
+
+                <div className="flex items-center gap-2">
+                  <select
+                    value={levelFilter}
+                    onChange={(e) => handleLevelFilter(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                    <option value="">All Levels</option>
+                    <option value="100">100L</option>
+                    <option value="200">200L</option>
+                    <option value="300">300L</option>
+                    <option value="400">400L</option>
+                    <option value="500">500L</option>
+                  </select>
+
+                  <button
+                    onClick={() => navigate('/admin/add-student')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold whitespace-nowrap"
+                  >
+                    ➕ Add Student
+                  </button>
+                </div>
               </div>
 
               <table className="w-full">

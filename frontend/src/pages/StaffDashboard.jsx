@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { staffLinks } from '../links'
+import * as Icons from 'react-icons/io5'
 
 function StaffDashboard() {
   const [staff, setStaff] = useState(null)
@@ -13,8 +14,17 @@ function StaffDashboard() {
       navigate('/staff/login')
       return
     }
-    setStaff(JSON.parse(savedStaff))
-  }, [])
+
+    const staffData = JSON.parse(savedStaff)
+
+    // FORCE PASSWORD CHANGE ON FIRST LOGIN
+    if (staffData.first_login) {
+      navigate('/change-password')
+      return
+    }
+
+    setStaff(staffData)
+  }, [navigate])
 
   if (!staff) {
     return (
@@ -91,26 +101,31 @@ function StaffDashboard() {
             ))}
           </div>
 
-          {/* Quick Links + Notification */}
+          {/* Quick Links + Notification - FIXED */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">⚡ Quick Links</h3>
               <div className="grid grid-cols-2 gap-3">
-                {staffLinks.map((link, i) => (
-                  <button
-                    key={i}
-                    onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition">
-                    <span>{link.icon}</span>
-                    <span>{link.label}</span>
-                  </button>
-                ))}
+                {staffLinks.map((link, i) => {
+                  const Icon = Icons[link.icon]
+                  if (!Icon) return null
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => navigate(link.path)}
+                      className="flex items-center gap-2 bg-gray-50 hover:bg-green-50 border-gray-200 rounded-lg p-3 text-sm font-medium text-gray-700 transition"
+                    >
+                      <Icon className="text-lg" />
+                      <span>{link.label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="font-bold text-gray-800 mb-4">🔔 Notifications</h3>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="bg-yellow-50 border-yellow-200 rounded-lg p-3">
                 <p className="text-sm font-semibold text-yellow-800">Results Submission Deadline</p>
                 <p className="text-xs text-yellow-600 mt-1">
                   Submit all results before July 25th. Contact HOD for extensions.

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import API_URL from '../api' // FIXED: Now importing from central api.js
+import API_URL from '../api'
 
 function StudentLogin() {
   const [matricNo, setMatricNo] = useState('')
@@ -18,21 +18,39 @@ function StudentLogin() {
     try {
       const response = await fetch(`${API_URL}/api/auth/student/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matric_no: matricNo, password })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          matric_no: matricNo,
+          password
+        })
       })
 
       const data = await response.json()
 
       if (response.ok) {
+        // FIX: Force first_login to be true boolean or false boolean
+        const studentData = {
+          ...data.student,
+          first_login: Boolean(Number(data.student.first_login)) // 1/"1"/true = true, 0/"0"/false = false
+        }
+
         localStorage.setItem('token', data.token)
-        localStorage.setItem('student', JSON.stringify(data.student))
-        navigate('/student/dashboard')
+        localStorage.setItem('student', JSON.stringify(studentData))
+
+        // FORCE PASSWORD CHANGE ON FIRST LOGIN
+        if (studentData.first_login) {
+          navigate('/change-password')
+        } else {
+          navigate('/student/dashboard')
+        }
+        
       } else {
         setError(data.message)
       }
+
     } catch (err) {
-      console.error(err)
       setError('Cannot connect to server. Try again.')
     }
   }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import API_URL from '../api' // FIXED: Now importing from central api.js
+import API_URL from '../api'
 
 function StaffLogin() {
   const [staffId, setStaffId] = useState('')
@@ -25,11 +25,23 @@ function StaffLogin() {
       const data = await response.json()
 
       if (response.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('staff', JSON.stringify(data.staff))
+        // FIX: Force first_login to be true boolean or false boolean
+        const staffData = {
+          ...data.staff,
+          first_login: Boolean(Number(data.staff.first_login))
+        }
 
-        // Redirect based on role
-        if (data.staff.role === 'hod') {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('staff', JSON.stringify(staffData))
+
+        // 1. FIRST CHECK: Force password change
+        if (staffData.first_login) {
+          navigate('/change-password')
+          return
+        }
+
+        // 2. SECOND CHECK: Redirect based on role
+        if (staffData.role === 'hod') {
           navigate('/hod/dashboard')
         } else {
           navigate('/staff/dashboard')

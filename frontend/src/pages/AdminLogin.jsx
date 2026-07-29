@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import API_URL from '../api' // FIXED: Now importing from central api.js
+import API_URL from '../api'
 
 function AdminLogin() {
   const [adminId, setAdminId] = useState('')
@@ -25,8 +25,22 @@ function AdminLogin() {
       const data = await response.json()
 
       if (response.ok) {
+        // FIX: Force first_login to be true boolean or false boolean
+        const adminData = {
+          ...data.admin,
+          first_login: Boolean(Number(data.admin.first_login))
+        }
+
         localStorage.setItem('token', data.token)
-        localStorage.setItem('admin', JSON.stringify(data.admin))
+        localStorage.setItem('admin', JSON.stringify(adminData))
+
+        // 1. FIRST CHECK: Force password change
+        if (adminData.first_login) {
+          navigate('/change-password')
+          return
+        }
+
+        // 2. SECOND CHECK: Go to dashboard
         navigate('/admin/dashboard')
       } else {
         setError(data.message)

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import * as Icons from 'react-icons/io5'
+import { IoArrowBack } from 'react-icons/io5'
 
 function Navbar({ role, user, links }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -7,102 +9,82 @@ function Navbar({ role, user, links }) {
   const location = useLocation()
 
   const colors = {
-    student: { bg: 'bg-blue-800', text: 'text-blue-800', hover: 'hover:bg-blue-50' },
-    staff: { bg: 'bg-green-800', text: 'text-green-800', hover: 'hover:bg-green-50' },
-    hod: { bg: 'bg-orange-800', text: 'text-orange-800', hover: 'hover:bg-orange-50' },
-    admin: { bg: 'bg-gray-900', text: 'text-gray-900', hover: 'hover:bg-gray-50' },
+    student: { bg: 'bg-blue-800' },
+    staff: { bg: 'bg-green-800' },
+    hod: { bg: 'bg-orange-800' },
+    admin: { bg: 'bg-gray-900' }
   }
 
   const theme = colors[role] || colors.student
+  const dashboardPath = role === 'admin' ? '/admin/dashboard' : role === 'staff' || role === 'hod' ? '/staff/dashboard' : '/student/dashboard'
 
   const handleLogout = () => {
     localStorage.clear()
-    navigate('/login')
+    navigate(role === 'admin' ? '/admin/login' : role === 'staff' || role === 'hod' ? '/staff/login' : '/login')
   }
-
-  const handleNavigate = (path) => {
-    navigate(path)
-    setMenuOpen(false)
-  }
+  const handleNavigate = (path) => { navigate(path); setMenuOpen(false) }
+  const goDashboard = () => { navigate(dashboardPath); setMenuOpen(false) }
+  const goBack = () => { navigate(-1) }
+  const isDashboard = location.pathname === dashboardPath
 
   return (
     <>
-      {/* Main Navbar */}
-      <nav className={`${theme.bg} text-white px-4 py-4 flex justify-between items-center relative z-50`}>
-        {/* Logo */}
-        <h1 className="text-base font-bold">🎓 University Portal</h1>
-
-        {/* Desktop Welcome + Logout */}
+      <nav className={`${theme.bg} text-white px-4 py-4 flex justify-between items-center shadow-md sticky top-0 z-50`}>
+        <div className="flex items-center gap-3">
+          {!isDashboard &&
+            <button
+              onClick={goBack}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-white font-semibold transition"
+            >
+              <IoArrowBack className="text-lg" />
+              <span>Back</span>
+            </button>
+          }
+          <h1 onClick={goDashboard} className="text-base font-bold cursor-pointer">🎓 University Portal</h1>
+        </div>
         <div className="hidden md:flex items-center gap-4">
           <span className="text-sm">Welcome, {user}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-white text-gray-800 text-sm px-3 py-1 rounded-lg font-semibold hover:bg-gray-100">
-            Logout
-          </button>
+          <button onClick={goDashboard} className="bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-semibold">🏠 Dashboard</button>
+          <button onClick={handleLogout} className="bg-red-600 px-3 py-1 rounded-lg text-sm font-semibold">🚪 Logout</button>
         </div>
-
-        {/* Mobile — Welcome + Hamburger */}
-        <div className="flex md:hidden items-center gap-3">
-          <span className="text-sm truncate max-w-32">{user}</span>
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-white focus:outline-none">
-            {menuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-        </div>
+        <div className="flex md:hidden"><button onClick={() => setMenuOpen(!menuOpen)}><span className="text-2xl">{menuOpen ? '✕' : '☰'}</span></button></div>
       </nav>
 
-      {/* Mobile Slide-out Menu */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 flex">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50"
-            onClick={() => setMenuOpen(false)}
-          />
-
-          {/* Menu Panel */}
-          <div className={`relative w-72 max-w-xs ${theme.bg} h-full overflow-y-auto z-50 flex flex-col`}>
-            {/* Menu Header */}
-            <div className="p-5 border-b border-white border-opacity-20">
-              <p className="text-white font-bold text-lg">🎓 University Portal</p>
-              <p className="text-white text-opacity-80 text-sm mt-1">{user}</p>
-              <p className="text-white text-opacity-60 text-xs capitalize mt-1">{role} Portal</p>
+        <div className="fixed inset-0 z-40 md:hidden flex">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setMenuOpen(false)} />
+          <div className={`${theme.bg} relative w-72 h-full overflow-y-auto`}>
+            <div className="p-5 border-b border-white/20">
+              <h2 className="text-white font-bold text-lg">🎓 University Portal</h2>
+              <p className="text-white text-sm mt-1">{user}</p>
+              <p className="text-white text-xs opacity-70 capitalize">{role} Portal</p>
             </div>
-
-            {/* Menu Links */}
-            <div className="flex-1 p-3">
-              {links.map((link, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleNavigate(link.path)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition ${
-                    location.pathname === link.path
-                      ? 'bg-white bg-opacity-20 text-white font-semibold'
-                      : 'text-white text-opacity-80 hover:bg-white hover:bg-opacity-10'
-                  }`}>
-                  <span className="text-xl">{link.icon}</span>
-                  <span className="text-sm">{link.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Logout at bottom */}
-            <div className="p-4 border-t border-white border-opacity-20">
-              <button
-                onClick={handleLogout}
-                className="w-full bg-white bg-opacity-20 text-white py-3 rounded-xl font-semibold hover:bg-opacity-30 transition">
-                🚪 Logout
+            <div className="p-3">
+              <button onClick={goDashboard} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10">
+                <span>🏠</span><span>Dashboard</span>
               </button>
+            </div>
+
+            <div className="flex-1 px-3">
+              {links.map((link, index) => {
+                const Icon = Icons[link.icon]
+                if (!Icon) return null
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleNavigate(link.path)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 ${location.pathname === link.path ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'} text-white`}
+                  >
+                    <Icon className="text-xl" />
+                    <span>{link.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="p-4 border-t border-white/20">
+              <button onClick={handleLogout} className="w-full bg-red-600 py-3 rounded-xl font-semibold flex items-center justify-center gap-2">🚪 Logout</button>
             </div>
           </div>
         </div>
@@ -110,5 +92,4 @@ function Navbar({ role, user, links }) {
     </>
   )
 }
-
 export default Navbar
