@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import API_URL from '../api'
 import Navbar from '../components/Navbar'
 import { adminLinks } from '../links'
@@ -6,25 +6,79 @@ import { adminLinks } from '../links'
 function AddStudent() {
   const admin = JSON.parse(localStorage.getItem('admin'))
 
+  // STEP 2: New states for dropdowns
+  const [faculties, setFaculties] = useState([])
+  const [departments, setDepartments] = useState([])
+  const [programs, setPrograms] = useState([])
+
+  // STEP 3: Updated formData to use IDs
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
-    faculty: '',
-    department: '',
-    level: '',
-    matric_no: ''
+    faculty_id: '',
+    department_id: '',
+    program_id: '',
+    admission_session: '2026/2027',
+    level: ''
   })
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+  // STEP 5: Updated handleChange for cascading
+  const handleChange = async (e) => {
+    const { name, value } = e.target
+
+    setFormData(prev => ({
+     ...prev,
+      [name]: value
+    }))
+
+    if (name === 'faculty_id') {
+      setFormData(prev => ({
+       ...prev,
+        faculty_id: value,
+        department_id: '',
+        program_id: ''
+      }))
+
+      setPrograms([])
+
+      const res = await fetch(
+        `${API_URL}/api/auth/departments/${value}`
+      )
+
+      const data = await res.json()
+      setDepartments(data)
+    }
+
+    if (name === 'department_id') {
+      setFormData(prev => ({
+       ...prev,
+        department_id: value,
+        program_id: ''
+      }))
+
+      const res = await fetch(
+        `${API_URL}/api/auth/programs/${value}`
+      )
+
+      const data = await res.json()
+      setPrograms(data)
+    }
+  }
+
+  // STEP 4: Fetch faculties on load
+  useEffect(() => {
+    fetchFaculties()
+  }, [])
+
+  const fetchFaculties = async () => {
+    const res = await fetch(`${API_URL}/api/auth/faculties`)
+    const data = await res.json()
+    setFaculties(data)
   }
 
   const handleSubmit = async (e) => {
@@ -49,18 +103,21 @@ function AddStudent() {
         setMessage(
           `Student admitted successfully!
 
-Default Password: ${formData.matric_no}`
+Default Password: ${data.matric_no}`
         )
 
         setFormData({
           full_name: '',
           email: '',
           phone: '',
-          faculty: '',
-          department: '',
-          level: '',
-          matric_no: ''
+          faculty_id: '',
+          department_id: '',
+          program_id: '',
+          admission_session: '2026/2027',
+          level: ''
         })
+        setDepartments([])
+        setPrograms([])
       } else {
         setError(data.message)
       }
@@ -158,36 +215,78 @@ Default Password: ${formData.matric_no}`
 
             </div>
 
+            {/* STEP 6: Faculty Dropdown */}
             <div className="grid md:grid-cols-2 gap-4">
-
               <div>
                 <label className="block mb-1 font-medium">
                   Faculty
                 </label>
-
-                <input
-                  name="faculty"
-                  value={formData.faculty}
+                <select
+                  name="faculty_id"
+                  value={formData.faculty_id}
                   onChange={handleChange}
                   required
                   className="w-full border rounded-lg p-3"
-                />
+                >
+                  <option value="">Select Faculty</option>
+                  {faculties.map(faculty => (
+                    <option
+                      key={faculty.id}
+                      value={faculty.id}
+                    >
+                      {faculty.faculty_name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
+              {/* STEP 7: Department Dropdown */}
               <div>
                 <label className="block mb-1 font-medium">
                   Department
                 </label>
-
-                <input
-                  name="department"
-                  value={formData.department}
+                <select
+                  name="department_id"
+                  value={formData.department_id}
                   onChange={handleChange}
                   required
                   className="w-full border rounded-lg p-3"
-                />
+                >
+                  <option value="">Select Department</option>
+                  {departments.map(department => (
+                    <option
+                      key={department.id}
+                      value={department.id}
+                    >
+                      {department.department_name}
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
 
+            {/* STEP 8: Program Dropdown */}
+            <div>
+              <label className="block mb-1 font-medium">
+                Program
+              </label>
+              <select
+                name="program_id"
+                value={formData.program_id}
+                onChange={handleChange}
+                required
+                className="w-full border rounded-lg p-3"
+              >
+                <option value="">Select Program</option>
+                {programs.map(program => (
+                  <option
+                    key={program.id}
+                    value={program.id}
+                  >
+                    {program.program_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -215,15 +314,15 @@ Default Password: ${formData.matric_no}`
 
               <div>
                 <label className="block mb-1 font-medium">
-                  Matric Number
+                  Admission Session
                 </label>
 
                 <input
-                  name="matric_no"
-                  value={formData.matric_no}
+                  name="admission_session"
+                  value={formData.admission_session}
                   onChange={handleChange}
                   required
-                  placeholder="CSC/2025/001"
+                  placeholder="2026/2027"
                   className="w-full border rounded-lg p-3"
                 />
               </div>
@@ -234,7 +333,7 @@ Default Password: ${formData.matric_no}`
               disabled={loading}
               className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold"
             >
-              {loading ? 'Admitting Student...' : 'Admit Student'}
+              {loading? 'Admitting Student...' : 'Admit Student'}
             </button>
 
           </form>

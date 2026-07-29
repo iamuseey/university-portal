@@ -341,6 +341,70 @@ const getAllStudents = async (req, res) => {
   }
 }
 
+// STEP 1: NEW FUNCTIONS ADDED HERE
+const getFaculties = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        id,
+        faculty_name
+      FROM faculties
+      ORDER BY faculty_name
+    `)
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({
+      message: 'Server error'
+    })
+  }
+}
+
+const getDepartments = async (req, res) => {
+  try {
+    const { faculty_id } = req.params
+
+    const result = await pool.query(`
+      SELECT
+        id,
+        department_name
+      FROM departments
+      WHERE faculty_id = $1
+      ORDER BY department_name
+    `, [faculty_id])
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({
+      message: 'Server error'
+    })
+  }
+}
+
+const getPrograms = async (req, res) => {
+  try {
+    const { department_id } = req.params
+
+    const result = await pool.query(`
+      SELECT
+        id,
+        program_name
+      FROM programs
+      WHERE department_id = $1
+      ORDER BY program_name
+    `, [department_id])
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({
+      message: 'Server error'
+    })
+  }
+}
+
 const toggleStudentStatus = async (req, res) => {
   try {
     const { user_id, is_active } = req.body
@@ -392,10 +456,16 @@ const changePassword = async (req, res) => {
   }
 }
 
+// STEP 2: UPDATED EXPORTS
 module.exports = {
   studentLogin,
   staffLogin,
   adminLogin,
+
+  getFaculties,
+  getDepartments,
+  getPrograms,
+  
   getAllStudents,
   toggleStudentStatus,
   addStudent,
